@@ -2,6 +2,7 @@
 #include "define.h"
 
 #include <QApplication>
+#include <QString>
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +10,7 @@ int main(int argc, char *argv[])
     Window w;
 
     // *** 设置窗口 ***
-    w.setWindowTitle("iClip");
+    w.setWindowTitle(QString::fromStdString(WINDOW_TITLE));
     w.setFixedWidth(WINDOW_WIDTH);
     w.setFixedHeight(WINDOW_HEIGHT);
     // *** 显示窗口 ***
