@@ -9,10 +9,14 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    clipper.cpp \
     main.cpp \
     window.cpp
 
 HEADERS += \
+    clipper.h \
+    define.h \
+    define.h \
     window.h
 
 FORMS += \
