@@ -24,10 +24,11 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window)
     // *** 变量初始化 ***
     opStatusA = OpStatus::doing;
     opStatusB = OpStatus::waiting;
-
     piStatusA = PiStatus::illegal;
     piStatusB = PiStatus::illegal;
-
+    currentPolygonIndexA = currentPolygonIndexB = 0;
+    polygonsA.clear();
+    polygonsB.clear();
     return;
 }
 
@@ -44,42 +45,72 @@ Window::~Window()
  ********************/
 void Window::clickClipButton()
 {
+    if (piStatusA == PiStatus::legal && piStatusB == PiStatus::legal)
+    {
+        // TODO
+    }
     return;
 }
 
 
 void Window::clickStartButtonA()
 {
+    if (opStatusA == OpStatus::waiting)
+    {
+        opStatusA = OpStatus::doing;
+        opStatusB = OpStatus::waiting;
+    }
     return;
 }
 
 
 void Window::clickStartButtonB()
 {
+    if (opStatusB == OpStatus::waiting)
+    {
+        opStatusB = OpStatus::doing;
+        opStatusA = OpStatus::waiting;
+    }
     return;
 }
 
 
 void Window::clickCancelButtonA()
 {
+    if (opStatusA == OpStatus::doing)
+    {
+        // TODO
+    }
     return;
 }
 
 
 void Window::clickCancelButtonB()
 {
+    if (opStatusB == OpStatus::doing)
+    {
+        // TODO
+    }
     return;
 }
 
 
 void Window::clickClearButtonA()
 {
+    if (opStatusA == OpStatus::doing)
+    {
+        clearPointA();
+    }
     return;
 }
 
 
 void Window::clickClearButtonB()
 {
+    if (opStatusB == OpStatus::doing)
+    {
+        clearPointB();
+    }
     return;
 }
 
@@ -110,6 +141,7 @@ void Window::paintEvent(QPaintEvent *event)
     if (opStatusA == OpStatus::doing)
     {
         ui->startButton_A->setText(QString::fromStdString(START_BUTTON_TEXT_2));
+        ui->startButton_A->setEnabled(false);
         ui->cancelButton_A->setEnabled(true);
         ui->clearButton_A->setEnabled(true);
 
@@ -117,11 +149,25 @@ void Window::paintEvent(QPaintEvent *event)
     else
     {
         ui->startButton_A->setText(QString::fromStdString(START_BUTTON_TEXT_1));
+        ui->startButton_A->setEnabled(true);
         ui->cancelButton_A->setEnabled(false);
         ui->clearButton_A->setEnabled(false);
     }
+    if (opStatusB == OpStatus::doing)
+    {
+        ui->startButton_B->setText(QString::fromStdString(START_BUTTON_TEXT_2));
+        ui->startButton_B->setEnabled(false);
+        ui->cancelButton_B->setEnabled(true);
+        ui->clearButton_B->setEnabled(true);
 
-
+    }
+    else
+    {
+        ui->startButton_B->setText(QString::fromStdString(START_BUTTON_TEXT_1));
+        ui->startButton_B->setEnabled(true);
+        ui->cancelButton_B->setEnabled(false);
+        ui->clearButton_B->setEnabled(false);
+    }
     return;
 }
 
@@ -136,7 +182,9 @@ void Window::mousePressEvent(QMouseEvent *event)
         // * 点击左键 *
         int x = DRAWING_AREA_X_OFFSET + event->x();
         int y = DRAWING_AREA_Y_OFFSET + event->y();
-        if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE) {
+        if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE)
+        {
+            this->insertInfo("AAA" + QString(x) + QString(y));
             qDebug() << x << "  " << y << Qt::endl;
         }
     }
@@ -145,10 +193,100 @@ void Window::mousePressEvent(QMouseEvent *event)
         // * 点击右键 *
         int x = DRAWING_AREA_X_OFFSET + event->x();
         int y = DRAWING_AREA_Y_OFFSET + event->y();
-        if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE) {
+        if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE)
+        {
             qDebug() << x << "  " << y << Qt::endl;
         }
     }
+    return;
+}
+
+
+/********************
+ * [函数] 添加通知信息函数
+ ********************/
+void Window::insertInfo(QString s) {
+    if (ui->infoBrowser->document()->blockCount() >= INFO_MAX_LINE_NUMBER)
+        ui->infoBrowser->clear();
+    ui->infoBrowser->moveCursor(QTextCursor::Start);
+    ui->infoBrowser->insertPlainText(s);
+    ui->infoBrowser->insertPlainText("\n");
+    return;
+}
+
+
+/********************
+ * [函数] A 中插入新点函数
+ ********************/
+bool Window::insertPointA(Point p) {
+    // TODO
+    return false;
+}
+
+
+/********************
+ * [函数] B 中插入新点函数
+ ********************/
+bool Window::insertPointB(Point p) {
+    // TODO
+    return false;
+}
+
+
+/********************
+ * [函数] A 中撤销上一点
+ ********************/
+Point Window::cancelPointA() {
+    // TODO
+    return {0, 0};
+}
+
+
+/********************
+ * [函数] B 中撤销上一点
+ ********************/
+Point Window::cancelPointB() {
+    // TODO
+    return {0, 0};
+}
+
+
+/********************
+ * [函数] A 中清空所有点函数
+ ********************/
+void Window::clearPointA() {
+    currentPolygonIndexA = 0;
+    polygonsA.clear();
+    piStatusA = PiStatus::illegal;
+    return;
+}
+
+
+/********************
+ * [函数] B 中清空所有点函数
+ ********************/
+void Window::clearPointB() {
+    currentPolygonIndexB = 0;
+    polygonsB.clear();
+    piStatusB = PiStatus::illegal;
+    return;
+}
+
+
+/********************
+ * [函数] A 中闭合多边形
+ ********************/
+void Window::closePolygonA() {
+    // TODO
+    return;
+}
+
+
+/********************
+ * [函数] B 中闭合多边形
+ ********************/
+void Window::closePolygonB() {
+    // TODO
     return;
 }
 

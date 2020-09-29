@@ -7,8 +7,8 @@
 #include <QMouseEvent>
 #include <QPaintEvent>
 #include <QPixmap>
-
-
+#include <QTextBrowser>
+#include <vector>
 #include "clipper.h"
 
 
@@ -45,8 +45,23 @@ private:
     PiStatus piStatusA; // A 图形状态
     PiStatus piStatusB; // B 图形状态
 
+    int currentPolygonIndexA;   // A 当前多边形序号
+    int currentPolygonIndexB;   // B 当前多边形序号
+    std::vector<std::vector<Point>> polygonsA;   // A 多边形列表
+    std::vector<std::vector<Point>> polygonsB;   // B 多边形列表
+
     Ui::Window *ui;     // UI 实例
     Clipper *clipper;   // 裁剪类实例
+
+    void insertInfo(QString s);     // 添加通知信息函数
+    bool insertPointA(Point p);     // A 中插入新点函数
+    bool insertPointB(Point p);     // B 中插入新点函数
+    Point cancelPointA();           // A 中撤销上一点函数
+    Point cancelPointB();           // B 中撤销上一点函数
+    void clearPointA();             // A 中清空所有点函数
+    void clearPointB();             // B 中清空所有点函数
+    void closePolygonA();           // A 中闭合多边形函数
+    void closePolygonB();           // B 中闭合多边形函数
 
     // 图片资源
     QPixmap *pixmapALive;
@@ -55,5 +70,6 @@ private:
     QPixmap *pixmapBWait;
     QPixmap *pixmapIllegal;
     QPixmap *pixmapLegal;
+
 };
 #endif // WINDOW_H
