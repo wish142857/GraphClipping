@@ -14,22 +14,6 @@
    <string>Window</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QLabel" name="drawingArea">
-    <property name="geometry">
-     <rect>
-      <x>300</x>
-      <y>0</y>
-      <width>900</width>
-      <height>900</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-   </widget>
    <widget class="QTextBrowser" name="infoBrowser">
     <property name="geometry">
      <rect>
