@@ -31,6 +31,16 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
     currentPolygonIndexA = currentPolygonIndexB = 0;
     polygonsA.push_back(std::vector<Point>());
     polygonsB.push_back(std::vector<Point>());
+    // *** 画笔初始化 ***
+    penA.setBrush(Qt::red);
+    penA.setWidth(DEFAULT_PEN_WIDTH);
+    penA.setCapStyle(Qt::RoundCap);
+    penB.setBrush(Qt::blue);
+    penB.setWidth(DEFAULT_PEN_WIDTH);
+    penB.setCapStyle(Qt::RoundCap);
+    penC.setBrush(Qt::yellow);
+    penC.setWidth(DEFAULT_PEN_WIDTH);
+    penC.setCapStyle(Qt::RoundCap);
     return;
 }
 
@@ -45,19 +55,19 @@ Window::~Window() {
 /********************
  * [函数] 按钮点击事件处理函数
  ********************/
-void Window::clickClipButton() { if (piStatusA == PiStatus::legal && piStatusB == PiStatus::legal) { startClipAB(); } }
+void Window::clickClipButton() { if (piStatusA == PiStatus::legal && piStatusB == PiStatus::legal) { startClipAB(); } update(); }
 
 void Window::clickStartButtonA() { if (opStatusA == OpStatus::waiting) { opStatusA = OpStatus::doing; opStatusB = OpStatus::waiting; } }
 
 void Window::clickStartButtonB() { if (opStatusB == OpStatus::waiting) { opStatusB = OpStatus::doing; opStatusA = OpStatus::waiting; } }
 
-void Window::clickCancelButtonA() { if (opStatusA == OpStatus::doing) cancelPointA(); }
+void Window::clickCancelButtonA() { if (opStatusA == OpStatus::doing) cancelPointA(); update(); }
 
-void Window::clickCancelButtonB() { if (opStatusB == OpStatus::doing) cancelPointB(); }
+void Window::clickCancelButtonB() { if (opStatusB == OpStatus::doing) cancelPointB(); update(); }
 
-void Window::clickClearButtonA() { if (opStatusA == OpStatus::doing) clearPointA(); }
+void Window::clickClearButtonA() { if (opStatusA == OpStatus::doing) clearPointA(); update(); }
 
-void Window::clickClearButtonB() { if (opStatusB == OpStatus::doing) clearPointB(); }
+void Window::clickClearButtonB() { if (opStatusB == OpStatus::doing) clearPointB(); update(); }
 
 
 /********************
@@ -106,6 +116,23 @@ void Window::paintEvent(QPaintEvent *event) {
         ui->cancelButton_B->setEnabled(false);
         ui->clearButton_B->setEnabled(false);
     }
+    // *** 更新绘图区图形 ***
+    // * 初始化画笔 *
+    QPainter painter(this);
+    // * 绘制 A 图形 *
+    painter.setPen(penA);
+    for (std::vector<Point> &polygon : polygonsA) {
+        for (Point &p : polygon) {
+            painter.drawPoint(p.x - DRAWING_AREA_X_OFFSET, p.y - DRAWING_AREA_Y_OFFSET);
+        }
+    }
+    // * 绘制 B 图形 *
+    painter.setPen(penB);
+    for (std::vector<Point> &polygon : polygonsB) {
+        for (Point &p : polygon) {
+            painter.drawPoint(p.x - DRAWING_AREA_X_OFFSET, p.y - DRAWING_AREA_Y_OFFSET);
+        }
+    }
     return;
 }
 
@@ -119,8 +146,11 @@ void Window::mousePressEvent(QMouseEvent *event) {
         int x = DRAWING_AREA_X_OFFSET + event->x();
         int y = DRAWING_AREA_Y_OFFSET + event->y();
         if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE) {
-            this->insertInfo("AAA" + QString(x) + QString(y));
-            qDebug() << x << "  " << y << Qt::endl;
+            if (opStatusA == OpStatus::doing)
+                insertPointA(Point(x, y));
+            else if (opStatusB == OpStatus::doing)
+                insertPointB(Point(x, y));
+            update();
         }
     }
     if (event->button() & Qt::RightButton) {
@@ -128,7 +158,11 @@ void Window::mousePressEvent(QMouseEvent *event) {
         int x = DRAWING_AREA_X_OFFSET + event->x();
         int y = DRAWING_AREA_Y_OFFSET + event->y();
         if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE) {
-            qDebug() << x << "  " << y << Qt::endl;
+            if (opStatusA == OpStatus::doing)
+                closePolygonA();
+            else if (opStatusB == OpStatus::doing)
+                closePolygonB();
+            update();
         }
     }
     return;

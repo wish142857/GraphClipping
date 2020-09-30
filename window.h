@@ -6,6 +6,7 @@
 #include <QMainWindow>
 #include <QMouseEvent>
 #include <QPaintEvent>
+#include <QPainter>
 #include <QPixmap>
 #include <QTextBrowser>
 #include <vector>
@@ -51,6 +52,9 @@ private:
 
     Ui::Window *ui;     // UI 实例
     Clipper *clipper;   // 裁剪类实例
+    QPen penA;          // A 画笔类实例
+    QPen penB;          // B 画笔类实例
+    QPen penC;          // C 画笔类实例
 
     void insertInfo(const QString &s);    // 添加通知信息函数
     void insertPointA(Point p);     // A 中插入新点函数
