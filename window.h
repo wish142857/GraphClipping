@@ -17,8 +17,7 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class Window; }
 QT_END_NAMESPACE
 
-class Window : public QMainWindow
-{
+class Window : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -53,15 +52,17 @@ private:
     Ui::Window *ui;     // UI 实例
     Clipper *clipper;   // 裁剪类实例
 
-    void insertInfo(QString s);     // 添加通知信息函数
-    bool insertPointA(Point p);     // A 中插入新点函数
-    bool insertPointB(Point p);     // B 中插入新点函数
-    Point cancelPointA();           // A 中撤销上一点函数
-    Point cancelPointB();           // B 中撤销上一点函数
+    void insertInfo(const QString &s);    // 添加通知信息函数
+    void insertPointA(Point p);     // A 中插入新点函数
+    void insertPointB(Point p);     // B 中插入新点函数
+    void cancelPointA();            // A 中撤销上一点函数
+    void cancelPointB();            // B 中撤销上一点函数
     void clearPointA();             // A 中清空所有点函数
     void clearPointB();             // B 中清空所有点函数
     void closePolygonA();           // A 中闭合多边形函数
     void closePolygonB();           // B 中闭合多边形函数
+    void startClipAB();             // A、B 开始裁剪函数
+
 
     // 图片资源
     QPixmap *pixmapALive;
