@@ -23,14 +23,13 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
     // *** 组件初始化 ***
     ui->clipButton->setEnabled(false);
     // *** 变量初始化 ***
-    clipper = new Clipper();
     opStatusA = OpStatus::doing;
     opStatusB = OpStatus::waiting;
     piStatusA = PiStatus::illegal;
     piStatusB = PiStatus::illegal;
     currentPolygonIndexA = currentPolygonIndexB = 0;
-    polygonsA.push_back(std::vector<Point>());
-    polygonsB.push_back(std::vector<Point>());
+    polygonsA.push_back(Polygon());
+    polygonsB.push_back(Polygon());
     // *** 画笔初始化 ***
     penA.setBrush(Qt::red);
     penA.setWidth(DEFAULT_PEN_WIDTH);
@@ -47,7 +46,6 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
 
 Window::~Window() {
     delete ui;
-    delete clipper;
     return;
 }
 
@@ -121,17 +119,33 @@ void Window::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     // * 绘制 A 图形 *
     painter.setPen(penA);
-    for (std::vector<Point> &polygon : polygonsA) {
-        for (Point &p : polygon) {
-            painter.drawPoint(p.x - DRAWING_AREA_X_OFFSET, p.y - DRAWING_AREA_Y_OFFSET);
+    for (int i = 0; i <= currentPolygonIndexA; i++) {
+        for (int j = 0; j < int(polygonsA[i].size()); j++) {
+            painter.drawPoint(polygonsA[i][j].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j].y - DRAWING_AREA_Y_OFFSET);
+            if (j > 0)
+                painter.drawLine(QPoint(polygonsA[i][j - 1].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j - 1].y - DRAWING_AREA_Y_OFFSET),
+                        QPoint(polygonsA[i][j].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j].y - DRAWING_AREA_Y_OFFSET));
         }
+    }
+    for (int i = 0; i < currentPolygonIndexA; i++) {
+        if (polygonsA[i].size() >= 3)
+            painter.drawLine(QPoint(polygonsA[i][polygonsA[i].size() - 1].x - DRAWING_AREA_X_OFFSET, polygonsA[i][polygonsA[i].size() - 1].y - DRAWING_AREA_Y_OFFSET),
+                    QPoint(polygonsA[i][0].x - DRAWING_AREA_X_OFFSET, polygonsA[i][0].y - DRAWING_AREA_Y_OFFSET));
     }
     // * 绘制 B 图形 *
     painter.setPen(penB);
-    for (std::vector<Point> &polygon : polygonsB) {
-        for (Point &p : polygon) {
-            painter.drawPoint(p.x - DRAWING_AREA_X_OFFSET, p.y - DRAWING_AREA_Y_OFFSET);
+    for (int i = 0; i <= currentPolygonIndexB; i++) {
+        for (int j = 0; j < int(polygonsB[i].size()); j++) {
+            painter.drawPoint(polygonsB[i][j].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j].y - DRAWING_AREA_Y_OFFSET);
+            if (j > 0)
+                painter.drawLine(QPoint(polygonsB[i][j - 1].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j - 1].y - DRAWING_AREA_Y_OFFSET),
+                        QPoint(polygonsB[i][j].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j].y - DRAWING_AREA_Y_OFFSET));
         }
+    }
+    for (int i = 0; i < currentPolygonIndexB; i++) {
+        if (polygonsB[i].size() >= 3)
+            painter.drawLine(QPoint(polygonsB[i][polygonsB[i].size() - 1].x - DRAWING_AREA_X_OFFSET, polygonsB[i][polygonsB[i].size() - 1].y - DRAWING_AREA_Y_OFFSET),
+                    QPoint(polygonsB[i][0].x - DRAWING_AREA_X_OFFSET, polygonsB[i][0].y - DRAWING_AREA_Y_OFFSET));
     }
     return;
 }
@@ -248,11 +262,11 @@ void Window::cancelPointB() {
  ********************/
 void Window::clearPointA() {
     int pointNumber = 0;
-    for (std::vector<Point> &polygon : polygonsA)
+    for (Polygon &polygon : polygonsA)
         pointNumber += polygon.size();
     currentPolygonIndexA = 0;
     polygonsA.clear();
-    polygonsA.push_back(std::vector<Point>());
+    polygonsA.push_back(Polygon());
     piStatusA = PiStatus::illegal;
     insertInfo(INFO_CLEAR_SUCCEED.arg("A").arg(pointNumber));
     return;
@@ -264,11 +278,11 @@ void Window::clearPointA() {
  ********************/
 void Window::clearPointB() {
     int pointNumber = 0;
-    for (std::vector<Point> &polygon : polygonsB)
+    for (Polygon &polygon : polygonsB)
         pointNumber += polygon.size();
     currentPolygonIndexB = 0;
     polygonsB.clear();
-    polygonsB.push_back(std::vector<Point>());
+    polygonsB.push_back(Polygon());
     piStatusB = PiStatus::illegal;
     insertInfo(INFO_CLEAR_SUCCEED.arg("B").arg(pointNumber));
     return;
@@ -281,11 +295,11 @@ void Window::clearPointB() {
 void Window::closePolygonA() {
     int pointNumber = polygonsA[currentPolygonIndexA].size();
     if (pointNumber < 3) {
-        insertInfo(INFO_CLOSE_POLYGON_FAIL.arg("A"));
+        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("A"));
         return;
     }
     currentPolygonIndexA++;
-    polygonsA.push_back(std::vector<Point>());
+    polygonsA.push_back(Polygon());
     insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("A").arg(pointNumber));
     // TODO 验证正确性
     return;
@@ -298,11 +312,11 @@ void Window::closePolygonA() {
 void Window::closePolygonB() {
     int pointNumber = polygonsB[currentPolygonIndexB].size();
     if (pointNumber < 3) {
-        insertInfo(INFO_CLOSE_POLYGON_FAIL.arg("B"));
+        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("B"));
         return;
     }
     currentPolygonIndexB++;
-    polygonsB.push_back(std::vector<Point>());
+    polygonsB.push_back(Polygon());
     insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("B").arg(pointNumber));
     // TODO 验证正确性
     return;

@@ -10,8 +10,8 @@
 #include <QPixmap>
 #include <QTextBrowser>
 #include <vector>
-#include "clipper.h"
-
+#include "algorithm.h"
+#include "define.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -47,11 +47,10 @@ private:
 
     int currentPolygonIndexA;   // A 当前多边形序号
     int currentPolygonIndexB;   // B 当前多边形序号
-    std::vector<std::vector<Point>> polygonsA;   // A 多边形列表
-    std::vector<std::vector<Point>> polygonsB;   // B 多边形列表
+    Polygons polygonsA;   // A 多边形列表
+    Polygons polygonsB;   // B 多边形列表
 
     Ui::Window *ui;     // UI 实例
-    Clipper *clipper;   // 裁剪类实例
     QPen penA;          // A 画笔类实例
     QPen penB;          // B 画笔类实例
     QPen penC;          // C 画笔类实例
