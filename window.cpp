@@ -121,7 +121,7 @@ void Window::paintEvent(QPaintEvent *event) {
     painter.setPen(penA);
     for (int i = 0; i <= currentPolygonIndexA; i++) {
         for (int j = 0; j < int(polygonsA[i].size()); j++) {
-            painter.drawPoint(polygonsA[i][j].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j].y - DRAWING_AREA_Y_OFFSET);
+            painter.drawPoint(QPoint(polygonsA[i][j].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j].y - DRAWING_AREA_Y_OFFSET));
             if (j > 0)
                 painter.drawLine(QPoint(polygonsA[i][j - 1].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j - 1].y - DRAWING_AREA_Y_OFFSET),
                         QPoint(polygonsA[i][j].x - DRAWING_AREA_X_OFFSET, polygonsA[i][j].y - DRAWING_AREA_Y_OFFSET));
@@ -136,7 +136,7 @@ void Window::paintEvent(QPaintEvent *event) {
     painter.setPen(penB);
     for (int i = 0; i <= currentPolygonIndexB; i++) {
         for (int j = 0; j < int(polygonsB[i].size()); j++) {
-            painter.drawPoint(polygonsB[i][j].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j].y - DRAWING_AREA_Y_OFFSET);
+            painter.drawPoint(QPoint(polygonsB[i][j].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j].y - DRAWING_AREA_Y_OFFSET));
             if (j > 0)
                 painter.drawLine(QPoint(polygonsB[i][j - 1].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j - 1].y - DRAWING_AREA_Y_OFFSET),
                         QPoint(polygonsB[i][j].x - DRAWING_AREA_X_OFFSET, polygonsB[i][j].y - DRAWING_AREA_Y_OFFSET));
@@ -169,8 +169,8 @@ void Window::mousePressEvent(QMouseEvent *event) {
     }
     if (event->button() & Qt::RightButton) {
         // * 点击右键 *
-        int x = DRAWING_AREA_X_OFFSET + event->x();
-        int y = DRAWING_AREA_Y_OFFSET + event->y();
+        double x = DRAWING_AREA_X_OFFSET + event->x();
+        double y = DRAWING_AREA_Y_OFFSET + event->y();
         if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE) {
             if (opStatusA == OpStatus::doing)
                 closePolygonA();
