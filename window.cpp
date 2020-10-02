@@ -231,6 +231,12 @@ void Window::insertPointA(Point p) {
             insertInfo(INFO_INSERT_POINT_FAIL_3.arg("A").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
         }
+        // 验证顶点是否在其他内环内
+        for (int k = 1; k < currentPolygonIndexA; k++)
+            if (checkPointInPolygon(p, polygonsA[k]))   {
+                insertInfo(INFO_INSERT_POINT_FAIL_4.arg("A").arg(p.x).arg(p.y), ERROR_COLOR);
+                return;
+            }
         // 验证线段相交
         if (polygonsA[currentPolygonIndexA].size() > 0) {
             const Line newLine = Line(polygonsA[currentPolygonIndexA][polygonsA[currentPolygonIndexA].size() - 1], p);
@@ -296,6 +302,12 @@ void Window::insertPointB(Point p) {
             insertInfo(INFO_INSERT_POINT_FAIL_3.arg("B").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
         }
+        // 验证顶点是否在其他内环内
+        for (int k = 1; k < currentPolygonIndexB; k++)
+            if (checkPointInPolygon(p, polygonsB[k]))   {
+                insertInfo(INFO_INSERT_POINT_FAIL_4.arg("B").arg(p.x).arg(p.y), ERROR_COLOR);
+                return;
+            }
         // 验证线段相交
         if (polygonsB[currentPolygonIndexB].size() > 0) {
             const Line newLine = Line(polygonsB[currentPolygonIndexB][polygonsB[currentPolygonIndexB].size() - 1], p);
@@ -423,10 +435,10 @@ void Window::closePolygonA() {
         return;
     }
     // *** 验证合法性 ***
-    // 闭合线段与其他线段是否规范相交
     const Line newLine = Line(polygonsA[currentPolygonIndexA][pointNumber - 1], polygonsA[currentPolygonIndexA][0]);
     if (currentPolygonIndexA == 0) {
-        // 闭合外图
+        // * 闭合外图 *
+        // 闭合线段是否与其他线段规范相交
         Polygon &polygon = polygonsA[0];
         for (int i = 0; i < int(polygon.size()) - 1; i++)
             if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
@@ -434,7 +446,8 @@ void Window::closePolygonA() {
                 return;
             }
     } else {
-        // 闭合内环
+        // * 闭合内环 *
+        // 闭合线段是否与其他线段规范相交
         for (int k = 1; k <= currentPolygonIndexA; k++) {
             Polygon &polygon = polygonsA[k];
             for (int i = 0; i < int(polygon.size()) - 1; i++)
@@ -447,6 +460,12 @@ void Window::closePolygonA() {
                 return;
             }
         }
+        // 闭合内环是否包含其他内环
+        for (int k = 1; k < currentPolygonIndexA; k++)
+            if (checkPointInPolygon(polygonsA[k].front(), polygonsA[currentPolygonIndexA]) || checkPointInPolygon(polygonsA[k].back(), polygonsA[currentPolygonIndexA])) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_3.arg("A"), ERROR_COLOR);
+                return;
+            }
     }
     // *** 开始闭合 ***
     currentPolygonIndexA++;
@@ -469,10 +488,10 @@ void Window::closePolygonB() {
         return;
     }
     // *** 验证正确性 ***
-    // 闭合线段与其他线段是否规范相交
     const Line newLine = Line(polygonsB[currentPolygonIndexB][pointNumber - 1], polygonsB[currentPolygonIndexB][0]);
     if (currentPolygonIndexB == 0) {
-        // 闭合外图
+        // * 闭合外图 *
+        // 闭合线段是否与其他线段规范相交
         Polygon &polygon = polygonsB[0];
         for (int i = 0; i < int(polygon.size()) - 1; i++)
             if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
@@ -480,7 +499,8 @@ void Window::closePolygonB() {
                 return;
             }
     } else {
-        // 闭合内环
+        // * 闭合内环 *
+        // 闭合线段是否与其他线段规范相交
         for (int k = 1; k <= currentPolygonIndexB; k++) {
             Polygon &polygon = polygonsB[k];
             for (int i = 0; i < int(polygon.size()) - 1; i++)
@@ -493,6 +513,12 @@ void Window::closePolygonB() {
                 return;
             }
         }
+        // 闭合内环是否包含其他内环
+        for (int k = 1; k < currentPolygonIndexB; k++)
+            if (checkPointInPolygon(polygonsB[k].front(), polygonsB[currentPolygonIndexB]) || checkPointInPolygon(polygonsB[k].back(), polygonsB[currentPolygonIndexB])) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_3.arg("B"), ERROR_COLOR);
+                return;
+            }
     }
     // *** 开始闭合 ***
     currentPolygonIndexB++;

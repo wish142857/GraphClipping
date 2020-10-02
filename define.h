@@ -25,6 +25,7 @@ const QString INFO_INSERT_POINT_SUCCEED = "[%1] 插入顶点成功: (%2, %3)";
 const QString INFO_INSERT_POINT_FAIL_1 = "[%1] 插入顶点失败: 重复顶点 (%2, %3)";
 const QString INFO_INSERT_POINT_FAIL_2 = "[%1] 插入顶点失败: 将造成交叉线段\n[(%2,%3)(%4,%5)]×[(%6,%7)(%8,%9)]";
 const QString INFO_INSERT_POINT_FAIL_3 = "[%1] 插入顶点失败: 内环顶点需在基本多边形内部 (%2, %3)";
+const QString INFO_INSERT_POINT_FAIL_4 = "[%1] 插入顶点失败: 内环顶点不应在其他内环内部 (%2, %3)";
 
 const QString INFO_CANCEL_SUCCEED = "[%1] 撤销顶点成功: (%2, %3)";
 const QString INFO_CANCEL_FAIL = "[%1] 撤销顶点失败: 已无剩余顶点";
@@ -34,6 +35,7 @@ const QString INFO_CLEAR_SUCCEED = "[%1] 清空顶点成功: 共 %2 个顶点";
 const QString INFO_CLOSE_POLYGON_SUCCEED = "[%1] 闭合多边形成功: 共 %2 个顶点";
 const QString INFO_CLOSE_POLYGON_FAIL_1 = "[%1] 闭合多边形失败: 至少需 3 个顶点";
 const QString INFO_CLOSE_POLYGON_FAIL_2 = "[%1] 闭合多边形失败: 将造成交叉线段\n[(%2,%3)(%4,%5)]×[(%6,%7)(%8,%9)]";
+const QString INFO_CLOSE_POLYGON_FAIL_3 = "[%1] 闭合多边形失败: 内环不能包含内环";
 
 
 /***************
