@@ -13,7 +13,7 @@ bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
 
     for (i = 0 ; i < int(polygon.size()); i++) {
         if ((polygon[i].y < point.y && polygon[j].y >= point.y) || (polygon[i].y >= point.y && polygon[j].y < point.y))
-            oddNodes ^= (double(polygon[i].x + (point.y - polygon[i].y)) / double((polygon[j].y - polygon[i].y)) * double((polygon[j].x - polygon[i].x)) < double(point.x));
+            oddNodes ^= (double(point.y - polygon[i].y) / double(polygon[j].y - polygon[i].y) * double(polygon[j].x - polygon[i].x) + double(polygon[i].x) < double(point.x));
         j = i;
     }
     return oddNodes;

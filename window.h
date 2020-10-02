@@ -58,7 +58,7 @@ private:
 
     // *** 图形绘制接口 ***
     // 假定，先绘外图，再绘内环
-    void insertInfo(const QString &s);    // 添加通知信息函数
+    void insertInfo(const QString &s, const QString &color = "#000000"); // 添加通知信息函数
     void insertPointA(Point p);     // A 中插入新点函数
     void insertPointB(Point p);     // B 中插入新点函数
     void cancelPointA();            // A 中撤销上一点函数

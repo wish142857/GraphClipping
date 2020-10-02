@@ -187,12 +187,11 @@ void Window::mousePressEvent(QMouseEvent *event) {
 /********************
  * [函数] 添加通知信息函数
  ********************/
-void Window::insertInfo(const QString &s) {
+void Window::insertInfo(const QString &s, const QString &color) {
     if (ui->infoBrowser->document()->blockCount() >= INFO_MAX_LINE_NUMBER)
         ui->infoBrowser->clear();
     ui->infoBrowser->moveCursor(QTextCursor::End);
-    ui->infoBrowser->insertPlainText(s);
-    ui->infoBrowser->insertPlainText("\n");
+    ui->infoBrowser->append(QString::fromStdString("<font color=\"%1\">%2</font>\n").arg(color).arg(s));
     ui->infoBrowser->moveCursor(QTextCursor::End);
     return;
 }
@@ -207,7 +206,7 @@ void Window::insertPointA(Point p) {
     for (Polygon &polygon : polygonsA)
         for (Point &point : polygon)
             if (point == p) {
-                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("A").arg(p.x).arg(p.y));
+                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("A").arg(p.x).arg(p.y), ERROR_COLOR);
                 return;
             }
     if (currentPolygonIndexA == 0) {
@@ -220,8 +219,8 @@ void Window::insertPointA(Point p) {
                 if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
                     insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
                                .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
-                               );
+                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y),
+                               ERROR_COLOR);
                     return;
                 }
         }
@@ -229,7 +228,7 @@ void Window::insertPointA(Point p) {
         // * 绘制内环 *
         // 验证顶点是否在基本矩形内
         if (!checkPointInPolygon(p, polygonsA[0])) {
-            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("A"));
+            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("A").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
         }
         // 验证线段相交
@@ -241,15 +240,15 @@ void Window::insertPointA(Point p) {
                     if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
                         insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
                                    .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
-                                   );
+                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y),
+                                   ERROR_COLOR);
                         return;
                     }
                 if (k != currentPolygonIndexA && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
                     insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
                                .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y)
-                               );
+                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y),
+                               ERROR_COLOR);
                     return;
                 }
             }
@@ -258,7 +257,7 @@ void Window::insertPointA(Point p) {
     // *** 开始插入 ***
     polygonsA[currentPolygonIndexA].push_back(p);
     piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
-    insertInfo(INFO_INSERT_POINT_SUCCEED.arg("A").arg(p.x).arg(p.y));
+    insertInfo(INFO_INSERT_POINT_SUCCEED.arg("A").arg(p.x).arg(p.y), SUCCESS_COLOR);
     return;
 }
 
@@ -272,7 +271,7 @@ void Window::insertPointB(Point p) {
     for (Polygon &polygon : polygonsB)
         for (Point &point : polygon)
             if (point == p) {
-                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("B").arg(p.x).arg(p.y));
+                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("B").arg(p.x).arg(p.y), ERROR_COLOR);
                 return;
             }
     if (currentPolygonIndexB == 0) {
@@ -285,8 +284,8 @@ void Window::insertPointB(Point p) {
                 if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
                     insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
                                .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
-                               );
+                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y),
+                               ERROR_COLOR);
                     return;
                 }
         }
@@ -294,7 +293,7 @@ void Window::insertPointB(Point p) {
         // * 绘制内环 *
         // 验证顶点是否在基本矩形内
         if (!checkPointInPolygon(p, polygonsB[0])) {
-            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("B"));
+            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("B").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
         }
         // 验证线段相交
@@ -306,15 +305,15 @@ void Window::insertPointB(Point p) {
                     if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
                         insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
                                    .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
-                                   );
+                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y),
+                                   ERROR_COLOR);
                         return;
                     }
                 if (k != currentPolygonIndexB && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
                     insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
                                .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
-                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y)
-                               );
+                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y),
+                               ERROR_COLOR);
                     return;
                 }
             }
@@ -323,7 +322,7 @@ void Window::insertPointB(Point p) {
     // *** 开始插入 ***
     polygonsB[currentPolygonIndexB].push_back(p);
     piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
-    insertInfo(INFO_INSERT_POINT_SUCCEED.arg("B").arg(p.x).arg(p.y));
+    insertInfo(INFO_INSERT_POINT_SUCCEED.arg("B").arg(p.x).arg(p.y), SUCCESS_COLOR);
     return;
 }
 
@@ -338,7 +337,7 @@ void Window::cancelPointA() {
         currentPolygonIndexA--;
     if (currentPolygonIndexA < 0) {
         currentPolygonIndexA = 0;
-        insertInfo(INFO_CANCEL_FAIL.arg("A"));
+        insertInfo(INFO_CANCEL_FAIL.arg("A"), ERROR_COLOR);
     } else {
         // *** 开始撤销 ***
         Point p = polygonsA[currentPolygonIndexA].back();
@@ -347,7 +346,7 @@ void Window::cancelPointA() {
             piStatusA = PiStatus::legal; // 更新图形状态 - 合法
         else
             piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
-        insertInfo(INFO_CANCEL_SUCCEED.arg("A").arg(p.x).arg(p.y));
+        insertInfo(INFO_CANCEL_SUCCEED.arg("A").arg(p.x).arg(p.y), SUCCESS_COLOR);
     }
     return;
 }
@@ -363,7 +362,7 @@ void Window::cancelPointB() {
         currentPolygonIndexB--;
     if (currentPolygonIndexB < 0) {
         currentPolygonIndexB = 0;
-        insertInfo(INFO_CANCEL_FAIL.arg("B"));
+        insertInfo(INFO_CANCEL_FAIL.arg("B"), ERROR_COLOR);
     } else {
         // *** 开始撤销 ***
         Point p = polygonsB[currentPolygonIndexB].back();
@@ -372,7 +371,7 @@ void Window::cancelPointB() {
             piStatusB = PiStatus::legal; // 更新图形状态 - 合法
         else
             piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
-        insertInfo(INFO_CANCEL_SUCCEED.arg("B").arg(p.x).arg(p.y));
+        insertInfo(INFO_CANCEL_SUCCEED.arg("B").arg(p.x).arg(p.y), SUCCESS_COLOR);
     }
     return;
 }
@@ -390,7 +389,7 @@ void Window::clearPointA() {
     polygonsA.clear();
     polygonsA.push_back(Polygon());
     piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
-    insertInfo(INFO_CLEAR_SUCCEED.arg("A").arg(pointNumber));
+    insertInfo(INFO_CLEAR_SUCCEED.arg("A").arg(pointNumber), SUCCESS_COLOR);
     return;
 }
 
@@ -407,7 +406,7 @@ void Window::clearPointB() {
     polygonsB.clear();
     polygonsB.push_back(Polygon());
     piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
-    insertInfo(INFO_CLEAR_SUCCEED.arg("B").arg(pointNumber));
+    insertInfo(INFO_CLEAR_SUCCEED.arg("B").arg(pointNumber), SUCCESS_COLOR);
     return;
 }
 
@@ -420,7 +419,7 @@ void Window::closePolygonA() {
     // 是否有至少 3 个顶点
     int pointNumber = polygonsA[currentPolygonIndexA].size();
     if (pointNumber < 3) {
-        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("A"));
+        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("A"), ERROR_COLOR);
         return;
     }
     // *** 验证合法性 ***
@@ -431,7 +430,7 @@ void Window::closePolygonA() {
         Polygon &polygon = polygonsA[0];
         for (int i = 0; i < int(polygon.size()) - 1; i++)
             if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
-                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"), ERROR_COLOR);
                 return;
             }
     } else {
@@ -440,11 +439,11 @@ void Window::closePolygonA() {
             Polygon &polygon = polygonsA[k];
             for (int i = 0; i < int(polygon.size()) - 1; i++)
                 if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
-                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"), ERROR_COLOR);
                     return;
                 }
             if (k != currentPolygonIndexA && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
-                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"), ERROR_COLOR);
                 return;
             }
         }
@@ -453,7 +452,7 @@ void Window::closePolygonA() {
     currentPolygonIndexA++;
     polygonsA.push_back(Polygon());
     piStatusA = PiStatus::legal; // 更新图形状态 - 合法
-    insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("A").arg(pointNumber));
+    insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("A").arg(pointNumber), SUCCESS_COLOR);
     return;
 }
 
@@ -466,7 +465,7 @@ void Window::closePolygonB() {
     // 是否有至少 3 个顶点
     int pointNumber = polygonsB[currentPolygonIndexB].size();
     if (pointNumber < 3) {
-        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("B"));
+        insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("B"), ERROR_COLOR);
         return;
     }
     // *** 验证正确性 ***
@@ -477,7 +476,7 @@ void Window::closePolygonB() {
         Polygon &polygon = polygonsB[0];
         for (int i = 0; i < int(polygon.size()) - 1; i++)
             if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
-                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"), ERROR_COLOR);
                 return;
             }
     } else {
@@ -486,11 +485,11 @@ void Window::closePolygonB() {
             Polygon &polygon = polygonsB[k];
             for (int i = 0; i < int(polygon.size()) - 1; i++)
                 if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
-                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"), ERROR_COLOR);
                     return;
                 }
             if (k != currentPolygonIndexB && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
-                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"), ERROR_COLOR);
                 return;
             }
         }
@@ -499,7 +498,7 @@ void Window::closePolygonB() {
     currentPolygonIndexB++;
     polygonsB.push_back(Polygon());
     piStatusB = PiStatus::legal; // 更新图形状态 - 合法
-    insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("B").arg(pointNumber));
+    insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("B").arg(pointNumber), SUCCESS_COLOR);
     return;
 }
 
@@ -514,5 +513,3 @@ void Window::startClipAB() {
     qDebug() << "@@@" << checkLineWithLine(Line(Point(421, 439), Point(421, 380)), Line(Point(341, 607), Point(570, 661))) << Qt::endl;
 
 }
-
-
