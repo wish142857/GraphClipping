@@ -31,13 +31,13 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
     polygonsA.push_back(Polygon());
     polygonsB.push_back(Polygon());
     // *** 画笔初始化 ***
-    penA.setBrush(Qt::red);
+    penA.setColor(QColor(0xd8, 0x1e, 0x06));
     penA.setWidth(DEFAULT_PEN_WIDTH);
     penA.setCapStyle(Qt::RoundCap);
-    penB.setBrush(Qt::blue);
+    penB.setColor(QColor(0x12, 0x96, 0xdb));
     penB.setWidth(DEFAULT_PEN_WIDTH);
     penB.setCapStyle(Qt::RoundCap);
-    penC.setBrush(Qt::yellow);
+    penC.setColor(Qt::yellow);
     penC.setWidth(DEFAULT_PEN_WIDTH);
     penC.setCapStyle(Qt::RoundCap);
     return;
@@ -55,9 +55,9 @@ Window::~Window() {
  ********************/
 void Window::clickClipButton() { if (piStatusA == PiStatus::legal && piStatusB == PiStatus::legal) { startClipAB(); } update(); }
 
-void Window::clickStartButtonA() { if (opStatusA == OpStatus::waiting) { opStatusA = OpStatus::doing; opStatusB = OpStatus::waiting; } }
+void Window::clickStartButtonA() { if (opStatusA == OpStatus::waiting) { opStatusA = OpStatus::doing; opStatusB = OpStatus::waiting; update(); } }
 
-void Window::clickStartButtonB() { if (opStatusB == OpStatus::waiting) { opStatusB = OpStatus::doing; opStatusA = OpStatus::waiting; } }
+void Window::clickStartButtonB() { if (opStatusB == OpStatus::waiting) { opStatusB = OpStatus::doing; opStatusA = OpStatus::waiting; update(); } }
 
 void Window::clickCancelButtonA() { if (opStatusA == OpStatus::doing) cancelPointA(); update(); }
 
@@ -263,6 +263,7 @@ void Window::insertPointA(Point p) {
     // *** 开始插入 ***
     polygonsA[currentPolygonIndexA].push_back(p);
     piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
+    polygonsC.clear();
     insertInfo(INFO_INSERT_POINT_SUCCEED.arg("A").arg(p.x).arg(p.y), SUCCESS_COLOR);
     return;
 }
@@ -334,6 +335,7 @@ void Window::insertPointB(Point p) {
     // *** 开始插入 ***
     polygonsB[currentPolygonIndexB].push_back(p);
     piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
+    polygonsC.clear();
     insertInfo(INFO_INSERT_POINT_SUCCEED.arg("B").arg(p.x).arg(p.y), SUCCESS_COLOR);
     return;
 }
@@ -358,6 +360,7 @@ void Window::cancelPointA() {
             piStatusA = PiStatus::legal; // 更新图形状态 - 合法
         else
             piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
+        polygonsC.clear();
         insertInfo(INFO_CANCEL_SUCCEED.arg("A").arg(p.x).arg(p.y), SUCCESS_COLOR);
     }
     return;
@@ -383,6 +386,7 @@ void Window::cancelPointB() {
             piStatusB = PiStatus::legal; // 更新图形状态 - 合法
         else
             piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
+        polygonsC.clear();
         insertInfo(INFO_CANCEL_SUCCEED.arg("B").arg(p.x).arg(p.y), SUCCESS_COLOR);
     }
     return;
@@ -401,6 +405,7 @@ void Window::clearPointA() {
     polygonsA.clear();
     polygonsA.push_back(Polygon());
     piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
+    polygonsC.clear();
     insertInfo(INFO_CLEAR_SUCCEED.arg("A").arg(pointNumber), SUCCESS_COLOR);
     return;
 }
@@ -418,6 +423,7 @@ void Window::clearPointB() {
     polygonsB.clear();
     polygonsB.push_back(Polygon());
     piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
+    polygonsC.clear();
     insertInfo(INFO_CLEAR_SUCCEED.arg("B").arg(pointNumber), SUCCESS_COLOR);
     return;
 }

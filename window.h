@@ -49,6 +49,7 @@ private:
     int currentPolygonIndexB;   // B 当前多边形序号
     Polygons polygonsA;   // A 多边形列表
     Polygons polygonsB;   // B 多边形列表
+    Polygons polygonsC;   // C 多边形列表
 
     Ui::Window *ui;     // UI 实例
     QPen penA;          // A 画笔类实例
