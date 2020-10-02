@@ -26,7 +26,7 @@ public:
     ~Window();
 
 public slots:
-    // 按钮点击事件处理函数
+    // *** 按钮点击事件处理函数 ***
     void clickClipButton();
     void clickStartButtonA();
     void clickStartButtonB();
@@ -55,6 +55,9 @@ private:
     QPen penB;          // B 画笔类实例
     QPen penC;          // C 画笔类实例
 
+
+    // *** 图形绘制接口 ***
+    // 假定，先绘外图，再绘内环
     void insertInfo(const QString &s);    // 添加通知信息函数
     void insertPointA(Point p);     // A 中插入新点函数
     void insertPointB(Point p);     // B 中插入新点函数
@@ -66,8 +69,7 @@ private:
     void closePolygonB();           // B 中闭合多边形函数
     void startClipAB();             // A、B 开始裁剪函数
 
-
-    // 图片资源
+    // ***图片资源***
     QPixmap *pixmapALive;
     QPixmap *pixmapBLive;
     QPixmap *pixmapAWait;

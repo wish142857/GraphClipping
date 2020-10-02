@@ -20,6 +20,10 @@ const QString START_BUTTON_TEXT_1 = "开始绘图";
 const QString START_BUTTON_TEXT_2 = "正在绘图";
 
 const QString INFO_INSERT_POINT_SUCCEED = "[%1] 插入顶点成功: (%2, %3)";
+const QString INFO_INSERT_POINT_FAIL_1 = "[%1] 插入顶点失败: 重复顶点(%2, %3)";
+const QString INFO_INSERT_POINT_FAIL_2 = "[%1] 插入顶点失败: 将造成交叉线段\n(%2, %3)->(%4, %5) × (%6, %7)->(%8, %9)";
+const QString INFO_INSERT_POINT_FAIL_3 = "[%1] 插入顶点失败: 内环顶点需在基本多边形内部";
+
 
 const QString INFO_CANCEL_SUCCEED = "[%1] 撤销顶点成功: (%2, %3)";
 const QString INFO_CANCEL_FAIL = "[%1] 撤销顶点失败: 已无剩余顶点";
@@ -28,7 +32,7 @@ const QString INFO_CLEAR_SUCCEED = "[%1] 清空顶点成功: 共 %2 个顶点";
 
 const QString INFO_CLOSE_POLYGON_SUCCEED = "[%1] 闭合多边形成功: 共 %2 个顶点";
 const QString INFO_CLOSE_POLYGON_FAIL_1 = "[%1] 闭合多边形失败: 至少需 3 个顶点";
-const QString INFO_CLOSE_POLYGON_FAIL_2 = "[%1] 闭合多边形失败: 将造成交叉线段";
+const QString INFO_CLOSE_POLYGON_FAIL_2 = "[%1] 闭合多边形失败: 将造成交叉线段\n(%2, %3)->(%4, %5) × (%6, %7)->(%8, %9)";
 
 
 
@@ -58,6 +62,8 @@ struct Point {
     Point() : x(0), y(0) {}
     Point(int x) : x(x), y(x) {}
     Point(int x, int y) : x(x), y(y) { }
+    bool operator ==(const Point& p) { return this->x == p.x && this->y == p.y; }
+
 };
 
 struct Line {

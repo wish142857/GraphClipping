@@ -114,6 +114,7 @@ void Window::paintEvent(QPaintEvent *event) {
         ui->cancelButton_B->setEnabled(false);
         ui->clearButton_B->setEnabled(false);
     }
+    ui->clipButton->setEnabled(piStatusA == PiStatus::legal && piStatusB == PiStatus::legal);
     // *** 更新绘图区图形 ***
     // * 初始化画笔 *
     QPainter painter(this);
@@ -201,9 +202,63 @@ void Window::insertInfo(const QString &s) {
  * [函数] A 中插入新点函数
  ********************/
 void Window::insertPointA(Point p) {
+    // *** 验证合法性 ***
+    // 验证重复顶点
+    for (Polygon &polygon : polygonsA)
+        for (Point &point : polygon)
+            if (point == p) {
+                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("A").arg(p.x).arg(p.y));
+                return;
+            }
+    if (currentPolygonIndexA == 0) {
+        // * 绘制外图 *
+        // 验证线段相交
+        if (polygonsA[currentPolygonIndexA].size() > 0) {
+            Polygon &polygon = polygonsA[0];
+            const Line newLine = Line(polygon[polygon.size() - 1], p);
+            for (int i = 0; i < int(polygon.size()) - 1; i++)
+                if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                    insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
+                               .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
+                               );
+                    return;
+                }
+        }
+    } else {
+        // * 绘制内环 *
+        // 验证顶点是否在基本矩形内
+        if (!checkPointInPolygon(p, polygonsA[0])) {
+            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("A"));
+            return;
+        }
+        // 验证线段相交
+        if (polygonsA[currentPolygonIndexA].size() > 0) {
+            const Line newLine = Line(polygonsA[currentPolygonIndexA][polygonsA[currentPolygonIndexA].size() - 1], p);
+            for (int k = 1; k <= currentPolygonIndexA; k++) {
+                Polygon &polygon = polygonsA[k];
+                for (int i = 0; i < int(polygon.size()) - 1; i++)
+                    if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                        insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
+                                   .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
+                                   );
+                        return;
+                    }
+                if (k != currentPolygonIndexA && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
+                    insertInfo(INFO_INSERT_POINT_FAIL_2.arg("A")
+                               .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y)
+                               );
+                    return;
+                }
+            }
+        }
+    }
+    // *** 开始插入 ***
     polygonsA[currentPolygonIndexA].push_back(p);
+    piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
     insertInfo(INFO_INSERT_POINT_SUCCEED.arg("A").arg(p.x).arg(p.y));
-    // TODO 验证正确性
     return;
 }
 
@@ -212,9 +267,63 @@ void Window::insertPointA(Point p) {
  * [函数] B 中插入新点函数
  ********************/
 void Window::insertPointB(Point p) {
+    // *** 验证合法性 ***
+    // 验证重复顶点
+    for (Polygon &polygon : polygonsB)
+        for (Point &point : polygon)
+            if (point == p) {
+                insertInfo(INFO_INSERT_POINT_FAIL_1.arg("B").arg(p.x).arg(p.y));
+                return;
+            }
+    if (currentPolygonIndexB == 0) {
+        // * 绘制外图 *
+        // 验证线段相交
+        if (polygonsB[currentPolygonIndexB].size() > 0) {
+            Polygon &polygon = polygonsB[0];
+            const Line newLine = Line(polygon[polygon.size() - 1], p);
+            for (int i = 0; i < int(polygon.size()) - 1; i++)
+                if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                    insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
+                               .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                               .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
+                               );
+                    return;
+                }
+        }
+    } else {
+        // * 绘制内环 *
+        // 验证顶点是否在基本矩形内
+        if (!checkPointInPolygon(p, polygonsB[0])) {
+            insertInfo(INFO_INSERT_POINT_FAIL_3.arg("B"));
+            return;
+        }
+        // 验证线段相交
+        if (polygonsB[currentPolygonIndexB].size() > 0) {
+            const Line newLine = Line(polygonsB[currentPolygonIndexB][polygonsB[currentPolygonIndexB].size() - 1], p);
+            for (int k = 1; k <= currentPolygonIndexB; k++) {
+                Polygon &polygon = polygonsB[k];
+                for (int i = 0; i < int(polygon.size()) - 1; i++)
+                    if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                        insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
+                                   .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                                   .arg(polygon[i].x).arg(polygon[i].y).arg(polygon[i + 1].x).arg(polygon[i + 1].y)
+                                   );
+                        return;
+                    }
+                if (k != currentPolygonIndexB && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
+                    insertInfo(INFO_INSERT_POINT_FAIL_2.arg("B")
+                               .arg(newLine.begin.x).arg(newLine.begin.y).arg(newLine.end.x).arg(newLine.end.y)
+                               .arg(polygon[polygon.size() - 1].x).arg(polygon[polygon.size() - 1].y).arg(polygon[0].x).arg(polygon[0].y)
+                               );
+                    return;
+                }
+            }
+        }
+    }
+    // *** 开始插入 ***
     polygonsB[currentPolygonIndexB].push_back(p);
+    piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
     insertInfo(INFO_INSERT_POINT_SUCCEED.arg("B").arg(p.x).arg(p.y));
-    // TODO 验证正确性
     return;
 }
 
@@ -223,17 +332,23 @@ void Window::insertPointB(Point p) {
  * [函数] A 中撤销上一点
  ********************/
 void Window::cancelPointA() {
+    // *** 验证合法性 ***
+    // 保证之前的绘制均为合法，则撤销时无需验证
     while (currentPolygonIndexA >= 0 && polygonsA[currentPolygonIndexA].empty())
         currentPolygonIndexA--;
     if (currentPolygonIndexA < 0) {
         currentPolygonIndexA = 0;
         insertInfo(INFO_CANCEL_FAIL.arg("A"));
     } else {
+        // *** 开始撤销 ***
         Point p = polygonsA[currentPolygonIndexA].back();
         polygonsA[currentPolygonIndexA].pop_back();
+        if (currentPolygonIndexA != 0 && polygonsA[currentPolygonIndexA].size() == 0)
+            piStatusA = PiStatus::legal; // 更新图形状态 - 合法
+        else
+            piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
         insertInfo(INFO_CANCEL_SUCCEED.arg("A").arg(p.x).arg(p.y));
     }
-    // TODO 验证正确性
     return;
 }
 
@@ -242,17 +357,23 @@ void Window::cancelPointA() {
  * [函数] B 中撤销上一点
  ********************/
 void Window::cancelPointB() {
+    // *** 验证合法性 ***
+    // 保证之前的绘制均为合法，则撤销时无需验证
     while (currentPolygonIndexB >= 0 && polygonsB[currentPolygonIndexB].empty())
         currentPolygonIndexB--;
     if (currentPolygonIndexB < 0) {
         currentPolygonIndexB = 0;
         insertInfo(INFO_CANCEL_FAIL.arg("B"));
     } else {
+        // *** 开始撤销 ***
         Point p = polygonsB[currentPolygonIndexB].back();
         polygonsB[currentPolygonIndexB].pop_back();
+        if (currentPolygonIndexB != 0 && polygonsB[currentPolygonIndexB].size() == 0)
+            piStatusB = PiStatus::legal; // 更新图形状态 - 合法
+        else
+            piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
         insertInfo(INFO_CANCEL_SUCCEED.arg("B").arg(p.x).arg(p.y));
     }
-    // TODO 验证正确性
     return;
 }
 
@@ -261,13 +382,14 @@ void Window::cancelPointB() {
  * [函数] A 中清空所有点函数
  ********************/
 void Window::clearPointA() {
+    // *** 开始清空 ***
     int pointNumber = 0;
     for (Polygon &polygon : polygonsA)
         pointNumber += polygon.size();
     currentPolygonIndexA = 0;
     polygonsA.clear();
     polygonsA.push_back(Polygon());
-    piStatusA = PiStatus::illegal;
+    piStatusA = PiStatus::illegal; // 更新图形状态 - 非法
     insertInfo(INFO_CLEAR_SUCCEED.arg("A").arg(pointNumber));
     return;
 }
@@ -277,13 +399,14 @@ void Window::clearPointA() {
  * [函数] B 中清空所有点函数
  ********************/
 void Window::clearPointB() {
+    // *** 开始清空 ***
     int pointNumber = 0;
     for (Polygon &polygon : polygonsB)
         pointNumber += polygon.size();
     currentPolygonIndexB = 0;
     polygonsB.clear();
     polygonsB.push_back(Polygon());
-    piStatusB = PiStatus::illegal;
+    piStatusB = PiStatus::illegal; // 更新图形状态 - 非法
     insertInfo(INFO_CLEAR_SUCCEED.arg("B").arg(pointNumber));
     return;
 }
@@ -293,15 +416,44 @@ void Window::clearPointB() {
  * [函数] A 中闭合多边形
  ********************/
 void Window::closePolygonA() {
+    // *** 验证合法性 ***
+    // 是否有至少 3 个顶点
     int pointNumber = polygonsA[currentPolygonIndexA].size();
     if (pointNumber < 3) {
         insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("A"));
         return;
     }
+    // *** 验证合法性 ***
+    // 闭合线段与其他线段是否规范相交
+    const Line newLine = Line(polygonsA[currentPolygonIndexA][pointNumber - 1], polygonsA[currentPolygonIndexA][0]);
+    if (currentPolygonIndexA == 0) {
+        // 闭合外图
+        Polygon &polygon = polygonsA[0];
+        for (int i = 0; i < int(polygon.size()) - 1; i++)
+            if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                return;
+            }
+    } else {
+        // 闭合内环
+        for (int k = 1; k <= currentPolygonIndexA; k++) {
+            Polygon &polygon = polygonsA[k];
+            for (int i = 0; i < int(polygon.size()) - 1; i++)
+                if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                    return;
+                }
+            if (k != currentPolygonIndexA && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("A"));
+                return;
+            }
+        }
+    }
+    // *** 开始闭合 ***
     currentPolygonIndexA++;
     polygonsA.push_back(Polygon());
+    piStatusA = PiStatus::legal; // 更新图形状态 - 合法
     insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("A").arg(pointNumber));
-    // TODO 验证正确性
     return;
 }
 
@@ -310,15 +462,44 @@ void Window::closePolygonA() {
  * [函数] B 中闭合多边形
  ********************/
 void Window::closePolygonB() {
+    // *** 验证合法性 ***
+    // 是否有至少 3 个顶点
     int pointNumber = polygonsB[currentPolygonIndexB].size();
     if (pointNumber < 3) {
         insertInfo(INFO_CLOSE_POLYGON_FAIL_1.arg("B"));
         return;
     }
+    // *** 验证正确性 ***
+    // 闭合线段与其他线段是否规范相交
+    const Line newLine = Line(polygonsB[currentPolygonIndexB][pointNumber - 1], polygonsB[currentPolygonIndexB][0]);
+    if (currentPolygonIndexB == 0) {
+        // 闭合外图
+        Polygon &polygon = polygonsB[0];
+        for (int i = 0; i < int(polygon.size()) - 1; i++)
+            if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                return;
+            }
+    } else {
+        // 闭合内环
+        for (int k = 1; k <= currentPolygonIndexB; k++) {
+            Polygon &polygon = polygonsB[k];
+            for (int i = 0; i < int(polygon.size()) - 1; i++)
+                if (checkLineWithLine(Line(polygon[i], polygon[i + 1]), newLine)) {
+                    insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                    return;
+                }
+            if (k != currentPolygonIndexB && checkLineWithLine(Line(polygon[polygon.size() - 1], polygon[0]), newLine)) {
+                insertInfo(INFO_CLOSE_POLYGON_FAIL_2.arg("B"));
+                return;
+            }
+        }
+    }
+    // *** 开始闭合 ***
     currentPolygonIndexB++;
     polygonsB.push_back(Polygon());
+    piStatusB = PiStatus::legal; // 更新图形状态 - 合法
     insertInfo(INFO_CLOSE_POLYGON_SUCCEED.arg("B").arg(pointNumber));
-    // TODO 验证正确性
     return;
 }
 
@@ -328,6 +509,10 @@ void Window::closePolygonB() {
  ********************/
 void Window::startClipAB() {
     // TODO
+    // (421, 439)->(421, 380) × (341, 607)->(570, 661)
+
+    qDebug() << "@@@" << checkLineWithLine(Line(Point(421, 439), Point(421, 380)), Line(Point(341, 607), Point(570, 661))) << Qt::endl;
+
 }
 
 

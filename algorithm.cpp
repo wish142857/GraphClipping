@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "algorithm.h"
 
 using namespace std;
@@ -23,13 +24,14 @@ bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
  * [算法] 判断两条线段是否规范相交
  ***************/
 bool checkLineWithLine(const Line &line1, const Line &line2) {
-    int a = (line1.end.x - line1.begin.x) * (line2.begin.y - line1.begin.y) - (line1.end.y - line1.begin.y) * (line2.begin.x - line1.begin.x);
-    int b = (line1.end.x - line1.begin.x) * (line2.end.y - line1.begin.y) -  (line1.end.y - line1.begin.y) * (line2.end.x - line1.begin.x);
-    if (a * b >= 0)
+    const Point &a = line1.begin, &b = line1.end, &c = line2.begin, &d = line2.end;
+    int x = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+    int y = (b.x - a.x) * (d.y - a.y) - (b.y - a.y) * (d.x - a.x);
+    if (x == 0 || y == 0 || (x > 0 && y > 0) || (x < 0 && y < 0))
         return false;
-    a = (line2.end.x - line2.begin.x) * (line1.begin.y - line2.begin.y) - (line2.end.y - line2.begin.y) * (line1.begin.x - line2.begin.x);
-    b = (line2.end.x - line2.begin.x) * (line1.end.y - line2.begin.y) - (line2.end.y - line2.begin.y) * (line1.end.x - line2.begin.x);
-    if (a * b >= 0)
+    x = (d.x - c.x) * (a.y - c.y) - (d.y - c.y) * (a.x - c.x);
+    y = (d.x - c.x) * (b.y - c.y) - (d.y - c.y) * (b.x - c.x);
+    if (x == 0 || y == 0 || (x > 0 && y > 0) || (x < 0 && y < 0))
         return false;
     return true;
 }
