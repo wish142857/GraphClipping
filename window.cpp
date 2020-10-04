@@ -149,7 +149,13 @@ void Window::paintEvent(QPaintEvent *event) {
                     QPoint(polygonsB[i][0].x - DRAWING_AREA_X_OFFSET, polygonsB[i][0].y - DRAWING_AREA_Y_OFFSET));
     }
     // * 绘制 C 图形 *
-    // TODO
+    painter.setPen(penC);
+    for (Polygon &polygon : polygonsC) {
+        for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) {
+            painter.drawPoint(QPoint(polygon[i].x - DRAWING_AREA_X_OFFSET, polygon[i].y - DRAWING_AREA_Y_OFFSET));
+            painter.drawLine(QPoint(polygon[j].x - DRAWING_AREA_X_OFFSET, polygon[j].y - DRAWING_AREA_Y_OFFSET), QPoint(polygon[i].x - DRAWING_AREA_X_OFFSET, polygon[i].y - DRAWING_AREA_Y_OFFSET));
+        }
+    }
     return;
 }
 
