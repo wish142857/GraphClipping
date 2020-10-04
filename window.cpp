@@ -548,8 +548,7 @@ void Window::closePolygonB() {
  ********************/
 void Window::startClipAB() {
     // TODO
-    // (421, 439)->(421, 380) × (341, 607)->(570, 661)
-
-    qDebug() << "@@@" << checkLineWithLine(Line(Point(421, 439), Point(421, 380)), Line(Point(341, 607), Point(570, 661))) << Qt::endl;
-
+    startClipPolygon(polygonsA, polygonsB, polygonsC);
+    // insertInfo()
+    return;
 }
