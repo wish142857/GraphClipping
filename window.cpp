@@ -148,6 +148,8 @@ void Window::paintEvent(QPaintEvent *event) {
             painter.drawLine(QPoint(polygonsB[i][polygonsB[i].size() - 1].x - DRAWING_AREA_X_OFFSET, polygonsB[i][polygonsB[i].size() - 1].y - DRAWING_AREA_Y_OFFSET),
                     QPoint(polygonsB[i][0].x - DRAWING_AREA_X_OFFSET, polygonsB[i][0].y - DRAWING_AREA_Y_OFFSET));
     }
+    // * 绘制 C 图形 *
+    // TODO
     return;
 }
 

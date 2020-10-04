@@ -5,16 +5,29 @@ using namespace std;
 
 
 /***************
+ * [算法] 判断多边形顶点是否顺时针序
+ ***************/
+bool checkPolygonClockWise(const Polygon &polygon) {
+    double S = 0;
+
+    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) {
+        S += polygon[j].x * polygon[i].y - polygon[j].y * polygon[i].x;
+    }
+
+    return S >= 0;
+}
+
+
+/***************
  * [算法] 判断点是否在多边形内部
  ***************/
 bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
-    int i = 0, j = polygon.size() - 1;
+
     bool oddNodes = false;
 
-    for (i = 0 ; i < int(polygon.size()); i++) {
+    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) {
         if ((polygon[i].y < point.y && polygon[j].y >= point.y) || (polygon[i].y >= point.y && polygon[j].y < point.y))
             oddNodes ^= (double(point.y - polygon[i].y) / double(polygon[j].y - polygon[i].y) * double(polygon[j].x - polygon[i].x) + double(polygon[i].x) < double(point.x));
-        j = i;
     }
     return oddNodes;
 }
@@ -35,3 +48,5 @@ bool checkLineWithLine(const Line &line1, const Line &line2) {
         return false;
     return true;
 }
+
+
