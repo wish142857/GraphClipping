@@ -89,8 +89,9 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         qDebug() << "@Debug | A 边数: " << lineListA.size();
         qDebug() << "@Debug | B 边数: " << lineListB.size();
     }
-
     // *** 求取边交点 O(mn) ***
+    int m = lineListA.size(), n = lineListB.size();
+    // TODO 向量叉积
 
     // *** 创建点列表 O(m+n) ***
     CPoint *cpointListA = nullptr, *cpointListB = nullptr;
@@ -130,7 +131,11 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << bool(p->other) << ")";
     }
     // *** 执行裁剪算法 O(m+n) ***
+    // TODO
+
     // *** 返回裁剪结果 O(?) ***
+
+
     if (DEBUG_MODE) {
         qDebug() << "@Debug | ***** WA End ***** " << Qt::endl;
     }

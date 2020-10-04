@@ -37,7 +37,7 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
     penB.setColor(QColor(0x12, 0x96, 0xdb));
     penB.setWidth(DEFAULT_PEN_WIDTH);
     penB.setCapStyle(Qt::RoundCap);
-    penC.setColor(Qt::yellow);
+    penC.setColor(QColor(0xff, 0xd7, 0x00));
     penC.setWidth(DEFAULT_PEN_WIDTH);
     penC.setCapStyle(Qt::RoundCap);
     return;

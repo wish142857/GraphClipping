@@ -6,5 +6,6 @@
         <file>res/B#cccccc.png</file>
         <file>res/N#d81e06.png</file>
         <file>res/P#1afa29.png</file>
+        <file>logo.ico</file>
     </qresource>
 </RCC>

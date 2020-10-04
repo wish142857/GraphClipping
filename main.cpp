@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     Window w;
 
     // *** 设置窗口 ***
+    a.setWindowIcon(QIcon(":/logo/logo.ico"));
     w.setWindowTitle(QString::fromStdString(WINDOW_TITLE));
     w.setFixedWidth(WINDOW_WIDTH);
     w.setFixedHeight(WINDOW_HEIGHT);
