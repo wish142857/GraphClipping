@@ -9,11 +9,8 @@ using namespace std;
  ***************/
 bool checkPolygonClockWise(const Polygon &polygon) {
     double S = 0;
-
-    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) {
+    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++)
         S += polygon[j].x * polygon[i].y - polygon[j].y * polygon[i].x;
-    }
-
     return S >= 0;
 }
 
@@ -22,13 +19,10 @@ bool checkPolygonClockWise(const Polygon &polygon) {
  * [算法] 判断点是否在多边形内部
  ***************/
 bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
-
     bool oddNodes = false;
-
-    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) {
+    for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++)
         if ((polygon[i].y < point.y && polygon[j].y >= point.y) || (polygon[i].y >= point.y && polygon[j].y < point.y))
             oddNodes ^= (double(point.y - polygon[i].y) / double(polygon[j].y - polygon[i].y) * double(polygon[j].x - polygon[i].x) + double(polygon[i].x) < double(point.x));
-    }
     return oddNodes;
 }
 
@@ -48,5 +42,4 @@ bool checkLineWithLine(const Line &line1, const Line &line2) {
         return false;
     return true;
 }
-
 

@@ -54,25 +54,54 @@ enum class PiStatus {
 
 
 /***************
- * [结构]
+ * [类]
  ***************/
 struct Point {
-    int x;
-    int y;
-
+    // *** 变量 ***
+    int x;      // X 横坐标
+    int y;      // Y 纵坐标
+    // *** 构造函数 ***
     Point() : x(0), y(0) {}
-    Point(int x) : x(x), y(x) {}
     Point(int x, int y) : x(x), y(y) { }
+    // *** 运算符重载 ***
     bool operator ==(const Point& p) { return this->x == p.x && this->y == p.y; }
 
 };
 
-struct Line {
-    Point begin;
-    Point end;
 
-    Line() : begin(Point()), end(Point()) { }
-    Line(Point begin, Point end) : begin(begin), end(end) { }
+struct CPoint {
+    // *** 变量 ***
+    double x;       // X 横坐标
+    double y;       // Y 纵坐标
+    double alpha;   // α 参数 [0,1]
+    bool isEntry;   // True 入点  False 出点
+    CPoint *other;  // 对应副本交点指针
+    CPoint *next;   // 列表下一元素指针
+    // *** 构造函数 ***
+    CPoint() : x(0), y(0), alpha(0), isEntry(false), other(nullptr), next(nullptr) { }
+    CPoint(double x, double y, double a, bool b, CPoint *o = nullptr, CPoint *n = nullptr) : x(x), y(y), alpha(a), isEntry(b), other(o), next(n) { }
+};
+
+
+struct Line {
+    // *** 变量 ***
+    Point begin;            // 起点
+    Point end;              // 终点
+    CPoint *cpointList;     // 交点列表
+    // *** 构造函数 ***
+    Line() : begin(Point()), end(Point()), cpointList(nullptr) { }
+    Line(Point begin, Point end) : begin(begin), end(end), cpointList(nullptr) { }
+    // *** 析构函数 ***
+    ~Line() { CPoint *q = nullptr, *p = cpointList; while (p) { q = p; delete p; p = q->next; } }
+    // *** 插入交点 ***
+    void insertCPoint(CPoint *cpoint) {
+        if (cpoint) {
+            CPoint *q = nullptr, *p = cpointList;
+            while (p && cpoint->alpha > p->alpha) { q = p; p = p->next; }
+            if (q) { q->next = cpoint; cpoint->next = p; }
+            else { cpointList = cpoint; cpoint->next = p; }
+        }
+    }
 };
 
 
