@@ -46,6 +46,44 @@ bool checkLineWithLine(const Line &line1, const Line &line2) {
 
 
 /***************
+ * [算法] 判断两条线段是否普通相交
+ ***************/
+bool checkCrossPoint(const Line &line1, const Line &line2) {
+    if ((line1.begin.x == line2.begin.x && line1.begin.y == line2.begin.y)
+            || (line1.begin.x == line2.end.x && line1.begin.y == line2.end.y)
+            || (line1.end.x == line2.begin.x && line1.end.y == line2.begin.y)
+            || (line1.end.x == line2.end.x && line1.end.y == line2.end.y))
+        return true;
+    return checkLineWithLine(line1, line2);
+}
+
+
+/***************
+ * [算法] 计算两条线段的交点
+ ***************/
+CPoint* calculateCrossPoint(const Line &line1, const Line &line2) {
+    const Point &a = line1.begin, &b = line1.end, &c = line2.begin, &d = line2.end;
+    // * 计算交点 *
+    double D = (b.x - a.x) * (d.y - c.y) - (d.x - c.x) * (b.y - a.y);
+    if (D == 0) return nullptr;
+    double b1 = (b.y - a.y) * a.x + (a.x - b.x) * a.y;
+    double b2 = (d.y - c.y) * c.x + (c.x - d.x) * c.y;
+    double x = (b2 * (b.x - a.x) - b1 * (d.x - c.x)) / D, y = (b2 * (b.y - a.y) - b1 * (d.y - c.y)) / D;
+    // * 创建交点元素 *
+    CPoint *first = new CPoint(x, y);
+    if (!first) return nullptr;
+    CPoint *second = new CPoint(x, y);
+    if (!second) return nullptr;
+    first->alpha = (b.x - a.x != 0 ? double(x - a.x) / double (b.x - a.x) : double(y - a.y) / double (b.y - a.y));
+    second->alpha = (d.x - c.x != 0 ? double(x - c.x) / double (d.x - c.x) : double(y - c.y) / double (d.y - c.y));
+    // TODO
+    first->other = second;
+    second->other = first;
+    return first;
+}
+
+
+/***************
  * [算法] 进行多边形裁剪（Weiler-Atherton Algorithm）
  * 调用时需保证多边形 A、B 合法
  ***************/
@@ -90,9 +128,12 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         qDebug() << "@Debug | B 边数: " << lineListB.size();
     }
     // *** 求取边交点 O(mn) ***
-    int m = lineListA.size(), n = lineListB.size();
-    // TODO 向量叉积
-
+    for (Line &lineA : lineListA)
+        for (Line &lineB : lineListB)
+            if (checkCrossPoint(lineA, lineB)) {
+                CPoint *p = calculateCrossPoint(lineA, lineB);
+                if (p) { lineA.insertCPoint(p); lineB.insertCPoint(p->other); }
+            }
     // *** 创建点列表 O(m+n) ***
     CPoint *cpointListA = nullptr, *cpointListB = nullptr;
     CPoint *cpointListTailA = nullptr, *cpointListTailB = nullptr;
@@ -134,8 +175,10 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     // TODO
 
     // *** 返回裁剪结果 O(?) ***
-
-
+    CPoint *q = nullptr, *p = cpointListA;
+    while (p) { q = p; p = p->next; delete q; }
+    p = cpointListB;
+    while (p) { q = p; p = p->next; delete q; }
     if (DEBUG_MODE) {
         qDebug() << "@Debug | ***** WA End ***** " << Qt::endl;
     }
