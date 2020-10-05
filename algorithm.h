@@ -4,6 +4,7 @@
 
 #include "define.h"
 
+
 // [算法] 判断多边形顶点是否顺时针序
 bool checkPolygonClockWise(const Polygon &polygon);
 

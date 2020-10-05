@@ -48,7 +48,6 @@ private:
 
     int currentPolygonIndexA;   // A 当前多边形序号
     int currentPolygonIndexB;   // B 当前多边形序号
-    int currentPolygonIndexC;   // C 当前多边形序号
     Polygons polygonsA;   // A 多边形列表
     Polygons polygonsB;   // B 多边形列表
     Polygons polygonsC;   // C 多边形列表

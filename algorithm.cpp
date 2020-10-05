@@ -1,8 +1,10 @@
 #include <QDebug>
+#include <math.h>
 #include "algorithm.h"
 #define DEBUG_MODE true
 
 using namespace std;
+
 
 
 /***************
@@ -179,16 +181,36 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << bool(p->other) << ")";
     }
     // *** 执行裁剪算法 O(m+n) ***
-    // TODO
-
+    bool isInA = true;
+    CPoint *h = cpointListA, *p = h;
+    int currentPolygonIndexC = 0;
+    polygonsC.push_back(Polygon());
+    while (p) {
+        // * 记录当前顶点/交点 *
+        polygonsC[currentPolygonIndexC].push_back(Point(round(p->x), round(p->y)));
+        // * 搜索下一顶点/交点 *
+        if (p->other && (p->isEntry ^ isInA)) { p = p->other; isInA = !isInA; }
+        p = p->next;
+        // * 判断是否回到起点 *
+        if (p == h) {
+            // 寻找下一未跟踪交点
+            while (h && (h->isVisited || !h->other)) h = h->next;
+            if (!h) break;
+            p = h;
+            // 建立新结果顶点表
+            currentPolygonIndexC++;
+            polygonsC.push_back(Polygon());
+        }
+    }
     // *** 返回裁剪结果 O(?) ***
-    CPoint *q = nullptr, *p = cpointListA;
-    while (p) { q = p; p = p->next; delete q; }
-    p = cpointListB;
-    while (p) { q = p; p = p->next; delete q; }
+    {
+        CPoint *q = nullptr, *p = cpointListA;
+        while (p) { q = p; p = p->next; delete q; }
+        p = cpointListB;
+        while (p) { q = p; p = p->next; delete q; }
+    }
     if (DEBUG_MODE) {
         qDebug() << "@Debug | ***** WA End ***** " << Qt::endl;
     }
     return;
 }
-
