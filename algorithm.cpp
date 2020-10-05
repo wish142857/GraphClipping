@@ -31,8 +31,8 @@ bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
 /***************
  * [算法] 判断两条线段是否规范相交
  ***************/
-bool checkLineWithLine(const Line &line1, const Line &line2) {
-    const Point &a = line1.begin, &b = line1.end, &c = line2.begin, &d = line2.end;
+bool checkLineWithLine(const Line &lineA, const Line &lineB) {
+    const Point &a = lineA.begin, &b = lineA.end, &c = lineB.begin, &d = lineB.end;
     int x = (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
     int y = (b.x - a.x) * (d.y - a.y) - (b.y - a.y) * (d.x - a.x);
     if (x == 0 || y == 0 || (x > 0 && y > 0) || (x < 0 && y < 0))
@@ -48,37 +48,44 @@ bool checkLineWithLine(const Line &line1, const Line &line2) {
 /***************
  * [算法] 判断两条线段是否普通相交
  ***************/
-bool checkCrossPoint(const Line &line1, const Line &line2) {
-    if ((line1.begin.x == line2.begin.x && line1.begin.y == line2.begin.y)
-            || (line1.begin.x == line2.end.x && line1.begin.y == line2.end.y)
-            || (line1.end.x == line2.begin.x && line1.end.y == line2.begin.y)
-            || (line1.end.x == line2.end.x && line1.end.y == line2.end.y))
+bool checkCrossPoint(const Line &lineA, const Line &lineB) {
+    if ((lineA.begin.x == lineB.begin.x && lineA.begin.y == lineB.begin.y)
+            || (lineA.begin.x == lineB.end.x && lineA.begin.y == lineB.end.y)
+            || (lineA.end.x == lineB.begin.x && lineA.end.y == lineB.begin.y)
+            || (lineA.end.x == lineB.end.x && lineA.end.y == lineB.end.y))
         return true;
-    return checkLineWithLine(line1, line2);
+    return checkLineWithLine(lineA, lineB);
 }
 
 
 /***************
  * [算法] 计算两条线段的交点
  ***************/
-CPoint* calculateCrossPoint(const Line &line1, const Line &line2) {
-    const Point &a = line1.begin, &b = line1.end, &c = line2.begin, &d = line2.end;
-    // * 计算交点 *
+CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB) {
+    const Point &a = lineA.begin, &b = lineA.end, &c = lineB.begin, &d = lineB.end;
+    // *** 计算交点 ***
     double D = (b.x - a.x) * (d.y - c.y) - (d.x - c.x) * (b.y - a.y);
     if (D == 0) return nullptr;
     double b1 = (b.y - a.y) * a.x + (a.x - b.x) * a.y;
     double b2 = (d.y - c.y) * c.x + (c.x - d.x) * c.y;
     double x = (b2 * (b.x - a.x) - b1 * (d.x - c.x)) / D, y = (b2 * (b.y - a.y) - b1 * (d.y - c.y)) / D;
-    // * 创建交点元素 *
+    // *** 创建交点元素 ***
     CPoint *first = new CPoint(x, y);
     if (!first) return nullptr;
     CPoint *second = new CPoint(x, y);
     if (!second) return nullptr;
-    first->alpha = (b.x - a.x != 0 ? double(x - a.x) / double (b.x - a.x) : double(y - a.y) / double (b.y - a.y));
-    second->alpha = (d.x - c.x != 0 ? double(x - c.x) / double (d.x - c.x) : double(y - c.y) / double (d.y - c.y));
-    // TODO
     first->other = second;
     second->other = first;
+    // * 计算 t 参数 *
+    first->t = (b.x - a.x != 0 ? double(x - a.x) / double (b.x - a.x) : double(y - a.y) / double (b.y - a.y));
+    second->t = (d.x - c.x != 0 ? double(x - c.x) / double (d.x - c.x) : double(y - c.y) / double (d.y - c.y));
+    // * 判断入点/出点 *
+    // 注意：对于外环（逆时针）, 线段向量(x, y), 则(y, -x)恰为其外法向量
+    //      对于内环（顺时针）, 线段向量(x, y), 则(y, -x)恰为其内法向量
+    // 将主多边形线段与裁剪多边形线段外/内法向量做点积，若结果为负，交点为入点; 若结果为正，交点为出点
+    int xF = d.y - c.y, yF = c.x - d.x;
+    first->isEntry = second->isEntry = ((b.x - a.x) * xF + (b.y - a.y) * yF < 0);
+    // *** 返回交点元素 ***
     return first;
 }
 

@@ -40,6 +40,7 @@ protected:
     void mousePressEvent(QMouseEvent *event);   // 鼠标点击事件处理函数
 
 private:
+    // A - 主多边形  B - 裁剪多边形
     OpStatus opStatusA; // A 操作状态
     OpStatus opStatusB; // B 操作状态
     PiStatus piStatusA; // A 图形状态

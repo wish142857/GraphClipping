@@ -73,13 +73,13 @@ struct CPoint {
     // *** 变量 ***
     double x;       // X 横坐标
     double y;       // Y 纵坐标
-    double alpha;   // α 参数 [0,1]
+    double t;       // t 参数 [0,1]
     bool isEntry;   // True: 入点  False: 出点
     CPoint *other;  // 对应副本交点指针 nullptr: 非交点
     CPoint *next;   // 列表下一元素指针
     // *** 构造函数 ***
-    CPoint() : x(0), y(0), alpha(0), isEntry(false), other(nullptr), next(nullptr) { }
-    CPoint(double x, double y, double a = 0, bool e = false, CPoint *o = nullptr, CPoint *n = nullptr) : x(x), y(y), alpha(a), isEntry(e), other(o), next(n) { }
+    CPoint() : x(0), y(0), t(0), isEntry(false), other(nullptr), next(nullptr) { }
+    CPoint(double x, double y, double t = 0, bool e = false, CPoint *o = nullptr, CPoint *n = nullptr) : x(x), y(y), t(t), isEntry(e), other(o), next(n) { }
 };
 
 
@@ -97,7 +97,7 @@ struct Line {
     void insertCPoint(CPoint *cpoint) {
         if (cpoint) {
             CPoint *q = nullptr, *p = cpointList;
-            while (p && cpoint->alpha > p->alpha) { q = p; p = p->next; }
+            while (p && cpoint->t > p->t) { q = p; p = p->next; }
             if (q) { q->next = cpoint; cpoint->next = p; }
             else { cpointList = cpoint; cpoint->next = p; }
         }
