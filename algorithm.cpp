@@ -116,24 +116,28 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         Polygon &polygon = polygonsA[0];
         if (!checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListA.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListA.push_back(Line(polygon[j], polygon[i]));
+        if (lineListA.size() > 0) lineListA.back().isEndLine = true;
     }
     // * A 内环入表 - 顺时针 *
     for (int k = 1; k < int(polygonsA.size()) && polygonsA[k].size(); k++) {
         Polygon &polygon = polygonsA[k];
         if (checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListA.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListA.push_back(Line(polygon[j], polygon[i]));
+        if (lineListA.size() > 0) lineListA.back().isEndLine = true;
     }
     // * B 外环入表 - 逆时针 *
     {
         Polygon &polygon = polygonsB[0];
         if (!checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListB.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListB.push_back(Line(polygon[j], polygon[i]));
+        if (lineListB.size() > 0) lineListB.back().isEndLine = true;
     }
     // * B 内环入表 - 顺时针 *
     for (int k = 1; k < int(polygonsB.size()) && polygonsB[k].size(); k++) {
         Polygon &polygon = polygonsB[k];
         if (checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListB.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListB.push_back(Line(polygon[j], polygon[i]));
+        if (lineListB.size() > 0) lineListB.back().isEndLine = true;
     }
     if (lineListA.size() == 0 || lineListB.size() == 0)
         return;
@@ -150,31 +154,44 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
             }
     // *** 创建点列表 O(m+n) ***
     CPoint *cpointListA = nullptr, *cpointListB = nullptr;
+    CPoint *cpointListHeadA = nullptr, *cpointListHeadB = nullptr;
     CPoint *cpointListTailA = nullptr, *cpointListTailB = nullptr;
     // * A 遍历边列表 *
     for (Line &line : lineListA) {
         // 插入顶点
         if (cpointListA) { cpointListTailA->next = new CPoint(double(line.begin.x), double(line.begin.y)); cpointListTailA = cpointListTailA->next; }
         else { cpointListA = cpointListTailA = new CPoint(double(line.begin.x), double(line.begin.y)); }
+        if (!cpointListHeadA) { cpointListHeadA =  cpointListTailA; }
         // 插入交点
         cpointListTailA->next = line.cpointList;
         line.cpointList = nullptr;
         while (cpointListTailA->next) cpointListTailA = cpointListTailA->next;
+        // 处理终边
+        if (line.isEndLine) {
+            cpointListTailA->next = new CPoint(double(line.end.x), double(line.end.y));
+            cpointListTailA = cpointListTailA->next;
+            cpointListTailA->link = cpointListHeadA;
+            cpointListHeadA = nullptr;
+        }
     }
-    cpointListTailA->next = new CPoint(double(lineListA[0].begin.x), double(lineListA[0].begin.y));
-    cpointListTailA = cpointListTailA->next;
     // * B 遍历边列表 *
     for (Line &line : lineListB) {
         // 插入顶点
         if (cpointListB) { cpointListTailB->next = new CPoint(double(line.begin.x), double(line.begin.y)); cpointListTailB = cpointListTailB->next; }
         else { cpointListB = cpointListTailB = new CPoint(double(line.begin.x), double(line.begin.y)); }
+        if (!cpointListHeadB) { cpointListHeadB =  cpointListTailB; }
         // 插入交点
         cpointListTailB->next = line.cpointList;
         line.cpointList = nullptr;
         while (cpointListTailB->next) cpointListTailB = cpointListTailB->next;
+        // 处理终边
+        if (line.isEndLine) {
+            cpointListTailB->next = new CPoint(double(line.end.x), double(line.end.y));
+            cpointListTailB = cpointListTailB->next;
+            cpointListTailB->link = cpointListHeadB;
+            cpointListHeadB = nullptr;
+        }
     }
-    cpointListTailB->next = new CPoint(double(lineListB[0].begin.x), double(lineListB[0].begin.y));
-    cpointListTailB = cpointListTailB->next;
     if (!cpointListA || !cpointListB)
         return;
     if (DEBUG_MODE) {
@@ -193,6 +210,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     while (h && !h->other) h = h->next;
     if (h) {
         p = h;
+        isInA = true;
         polygonsC.push_back(Polygon());
         while (p) {
             // * 记录当前顶点/交点 *
@@ -204,15 +222,13 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
             if (p->other && (p->isEntry != isInA)) { p = p->other; isInA = !isInA; }
             else if (p->link) { p = p->link; }
             p = p->next;
-            if (!p) {
-                // 回到起点
-            }
             // * 判断是否回到起点 *
             if (p == h || p->other == h) {
                 // 寻找下一未跟踪交点
                 while (h && (h->isVisited || !h->other)) h = h->next;
                 if (!h) break;
                 p = h;
+                isInA = true;
                 // 建立新结果顶点表
                 currentPolygonIndexC++;
                 polygonsC.push_back(Polygon());

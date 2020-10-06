@@ -92,9 +92,10 @@ struct Line {
     Point begin;            // 起点
     Point end;              // 终点
     CPoint *cpointList;     // 交点列表
+    bool isEndLine;         // 是否为环的终边
     // *** 构造函数 ***
-    Line() : begin(Point()), end(Point()), cpointList(nullptr) { }
-    Line(Point begin, Point end) : begin(begin), end(end), cpointList(nullptr) { }
+    Line() : begin(Point()), end(Point()), cpointList(nullptr), isEndLine(false)  { }
+    Line(Point begin, Point end) : begin(begin), end(end), cpointList(nullptr), isEndLine(false) { }
     // *** 析构函数 ***
     ~Line() { CPoint *q = nullptr, *p = cpointList; while (p) { q = p; p = p->next; delete q; } }
     // *** 插入交点 ***
