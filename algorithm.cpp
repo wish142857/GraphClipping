@@ -8,7 +8,7 @@ using namespace std;
 
 
 /***************
- * [算法] 判断多边形顶点是否顺时针序
+ * [算法] 判断多边形（无内环）顶点是否顺时针序
  ***************/
 bool checkPolygonClockWise(const Polygon &polygon) {
     double S = 0;
@@ -19,7 +19,7 @@ bool checkPolygonClockWise(const Polygon &polygon) {
 
 
 /***************
- * [算法] 判断点是否在多边形内部
+ * [算法] 判断点是否在多边形（无内环）内部
  ***************/
 bool checkPointInPolygon(const Point &point, const Polygon &polygon) {
     bool oddNodes = false;
@@ -48,7 +48,28 @@ bool checkLineWithLine(const Line &lineA, const Line &lineB) {
 
 
 /***************
- * [算法] 判断两条线段是否普通相交
+ * [算法] 判断多边形（无内环）与多边形（带内环）是否有交
+ ***************/
+bool checkPolygonWithPolygons(const Polygon &polygon, const Polygons &polygons) {
+    // 无交，则所有顶点在外环外，或所有顶点在内环内
+    bool noIntersection = true;
+    for (const Point &point : polygon)
+        if (checkPointInPolygon(point, polygons[0])) { noIntersection = false; break; }
+    if (noIntersection)
+        return false;
+    for (int i = 1; i < int(polygons.size()); i++) {
+        noIntersection = true;
+        for (const Point &point : polygon)
+            if (!checkPointInPolygon(point, polygons[i])) { noIntersection = false; break; }
+        if (noIntersection)
+            return false;
+    }
+    return true;
+}
+
+
+/***************
+ * [算法] 判断两条线段是否有交点
  ***************/
 bool checkCrossPoint(const Line &lineA, const Line &lineB) {
     if ((lineA.begin.x == lineB.begin.x && lineA.begin.y == lineB.begin.y)
@@ -98,7 +119,7 @@ CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB) {
 
 
 /***************
- * [算法] 进行多边形裁剪（Weiler-Atherton Algorithm）
+ * [算法] 进行多边形（带内环）裁剪（Weiler-Atherton Algorithm）
  * 调用时需保证多边形 A、B 合法
  ***************/
 void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygonsC) {
@@ -115,6 +136,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     // * A 外环入表 - 逆时针 *
     {
         Polygon &polygon = polygonsA[0];
+        if (!checkPolygonWithPolygons(polygon, polygonsB)) return;
         if (!checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListA.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListA.push_back(Line(polygon[j], polygon[i]));
         if (lineListA.size() > 0) lineListA.back().isEndLine = true;
@@ -122,6 +144,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     // * A 内环入表 - 顺时针 *
     for (int k = 1; k < int(polygonsA.size()) && polygonsA[k].size(); k++) {
         Polygon &polygon = polygonsA[k];
+        if (!checkPolygonWithPolygons(polygon, polygonsB)) continue;
         if (checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListA.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListA.push_back(Line(polygon[j], polygon[i]));
         if (lineListA.size() > 0) lineListA.back().isEndLine = true;
@@ -129,6 +152,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     // * B 外环入表 - 逆时针 *
     {
         Polygon &polygon = polygonsB[0];
+        if (!checkPolygonWithPolygons(polygon, polygonsA)) return;
         if (!checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListB.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListB.push_back(Line(polygon[j], polygon[i]));
         if (lineListB.size() > 0) lineListB.back().isEndLine = true;
@@ -136,6 +160,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     // * B 内环入表 - 顺时针 *
     for (int k = 1; k < int(polygonsB.size()) && polygonsB[k].size(); k++) {
         Polygon &polygon = polygonsB[k];
+        if (!checkPolygonWithPolygons(polygon, polygonsA)) continue;
         if (checkPolygonClockWise(polygon)) for (int i = 0, j = polygon.size() - 1; i < int(polygon.size()); j = i++) lineListB.push_back(Line(polygon[j], polygon[i]));
         else for (int i = polygon.size() - 1, j = 0; i >= 0; j = i--) lineListB.push_back(Line(polygon[j], polygon[i]));
         if (lineListB.size() > 0) lineListB.back().isEndLine = true;
@@ -143,8 +168,8 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     if (lineListA.size() == 0 || lineListB.size() == 0)
         return;
     if (DEBUG_MODE) {
-        qDebug() << "@Debug | A 边数: " << lineListA.size();
-        qDebug() << "@Debug | B 边数: " << lineListB.size();
+        qDebug() << "@Debug | A 有效边数: " << lineListA.size();
+        qDebug() << "@Debug | B 有效边数: " << lineListB.size();
     }
     // *** 求取边交点 O(mn) ***
     for (Line &lineA : lineListA)
