@@ -1,7 +1,7 @@
 #include <QDebug>
 #include <math.h>
 #include "algorithm.h"
-#define DEBUG_MODE true
+#define DEBUG_MODE false
 
 using namespace std;
 
@@ -102,11 +102,6 @@ CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB) {
     // 将主多边形线段与裁剪多边形线段外/内法向量做点积，若结果为负，交点为入点; 若结果为正，交点为出点
     int xF = c.y - d.y, yF = d.x - c.x;
     first->isEntry = second->isEntry = ((b.x - a.x) * xF + (b.y - a.y) * yF < 0);
-
-    qDebug() << "@Debug | " << QString("(%1,%2)(%3,%4)->(%5,%6)(%7,%8)   (%9, %10)(%11,%12)")
-                .arg(a.x).arg(a.y).arg(b.x).arg(b.y).arg(c.x).arg(c.y).arg(d.x).arg(d.y).arg(b.x - a.x).arg(b.y - a.y).arg(xF).arg(yF)
-             << ((b.x - a.x) * xF + (b.y - a.y) * yF < 0);
-
     // *** 返回交点元素 ***
     return first;
 }

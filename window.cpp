@@ -563,7 +563,7 @@ void Window::closePolygonB() {
  * [函数] A、B 开始裁剪函数
  ********************/
 void Window::startClipAB() {
-    int code = startClipPolygon(polygonsA, polygonsB, polygonsC);
+    startClipPolygon(polygonsA, polygonsB, polygonsC);
     insertInfo(INFO_CLIP_SUCCEED.arg("C"), WARNING_COLOR);
     return;
 }
