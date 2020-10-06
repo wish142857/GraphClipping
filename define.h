@@ -20,6 +20,7 @@ const QString ERROR_COLOR = "#FF0000";      // 失败信息颜色
 
 const QString START_BUTTON_TEXT_1 = "开始绘图";
 const QString START_BUTTON_TEXT_2 = "正在绘图";
+const QString POS_LABEL_TEXT = "当前坐标: (%1, %2)";
 
 const QString INFO_INSERT_POINT_SUCCEED = "[%1] 插入顶点成功: (%2, %3)";
 const QString INFO_INSERT_POINT_FAIL_1 = "[%1] 插入顶点失败: 重复顶点 (%2, %3)";

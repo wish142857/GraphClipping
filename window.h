@@ -37,6 +37,7 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event);        // 绘制事件处理函数
+    void mouseMoveEvent(QMouseEvent *event);    // 鼠标移动事件处理函数
     void mousePressEvent(QMouseEvent *event);   // 鼠标点击事件处理函数
 
 private:

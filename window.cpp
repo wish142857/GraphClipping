@@ -21,6 +21,8 @@ Window::Window(QWidget *parent) : QMainWindow(parent), ui(new Ui::Window) {
     connect(ui->clearButton_A, SIGNAL(clicked()), this, SLOT(clickClearButtonA()));
     connect(ui->clearButton_B, SIGNAL(clicked()), this, SLOT(clickClearButtonB()));
     // *** 组件初始化 ***
+    ui->centralwidget->setMouseTracking(true);
+    this->setMouseTracking(true);
     ui->clipButton->setEnabled(false);
     // *** 变量初始化 ***
     opStatusA = OpStatus::doing;
@@ -156,6 +158,20 @@ void Window::paintEvent(QPaintEvent *event) {
             painter.drawLine(QPoint(polygon[j].x - DRAWING_AREA_X_OFFSET, polygon[j].y - DRAWING_AREA_Y_OFFSET), QPoint(polygon[i].x - DRAWING_AREA_X_OFFSET, polygon[i].y - DRAWING_AREA_Y_OFFSET));
         }
     }
+    return;
+}
+
+
+/********************
+ * [函数] 鼠标移动事件处理函数
+ ********************/
+void Window::mouseMoveEvent(QMouseEvent *event) {
+    int x = event->x() + DRAWING_AREA_X_OFFSET, y = event->y() + DRAWING_AREA_Y_OFFSET;
+    if (x >= 0 && x < DRAWING_AREA_SIZE && y >= 0 && y < DRAWING_AREA_SIZE)
+        ui->posLabel->setText(POS_LABEL_TEXT.arg(x).arg(y));
+    else
+        ui->posLabel->setText(POS_LABEL_TEXT.arg("?").arg("?"));
+    update();
     return;
 }
 

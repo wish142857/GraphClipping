@@ -174,11 +174,11 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         return;
     if (DEBUG_MODE) {
         CPoint *p = cpointListA;
-        qDebug() << "@Debug | A 顶点/交点列表: \n (" << p->x << "," << p->y << "," << bool(p->other) << ")";
-        while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << bool(p->other) << ")";
+        qDebug() << "@Debug | A 顶点/交点列表: \n (" << p->x << "," << p->y << "," << (p->other ? "交点" : "顶点") << (p->isEntry ? "入点" : "出点") << ")";
+        while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << (p->other ? "交点" : "顶点") << (p->isEntry ? "入点" : "出点") << ")";
         p = cpointListB;
-        qDebug() << "@Debug | B 顶点/交点列表: \n (" << p->x << "," << p->y << "," << bool(p->other) << ")";
-        while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << bool(p->other) << ")";
+        qDebug() << "@Debug | B 顶点/交点列表: \n (" << p->x << "," << p->y << "," << (p->other ? "交点" : "顶点") << (p->isEntry ? "入点" : "出点") << ")";
+        while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << (p->other ? "交点" : "顶点") << (p->isEntry ? "入点" : "出点") << ")";
     }
     // *** 执行裁剪算法 O(m+n) ***
     bool isInA = true;
@@ -188,8 +188,9 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     while (p) {
         // * 记录当前顶点/交点 *
         polygonsC[currentPolygonIndexC].push_back(Point(round(p->x), round(p->y)));
+        p->isVisited = true;
         // * 搜索下一顶点/交点 *
-        if (p->other && (p->isEntry ^ isInA)) { p = p->other; isInA = !isInA; }
+        if (p->other && (p->isEntry != isInA)) { p = p->other; isInA = !isInA; }
         p = p->next;
         // * 判断是否回到起点 *
         if (p == h) {
