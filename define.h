@@ -57,7 +57,7 @@ enum class PiStatus {
 
 
 /***************
- * [类]
+ * [结构]
  ***************/
 struct Point {
     // *** 变量 ***
@@ -68,7 +68,6 @@ struct Point {
     Point(int x, int y) : x(x), y(y) { }
     // *** 运算符重载 ***
     bool operator ==(const Point& p) { return this->x == p.x && this->y == p.y; }
-
 };
 
 

@@ -49,11 +49,12 @@ bool checkLineWithLine(const Line &lineA, const Line &lineB) {
 
 /***************
  * [算法] 判断多边形（无内环）对于多边形（带内环）是否有效
- * 若多边形 A 与 多边形 B 无交，且 A 所有顶点在 B 外环外，或 A 所有顶点在 B 内环内
- * 则 A、B 显然无交，A 对于 B 无效
+ * 若多边形 A 的边与 多边形 B 的边无交，且 A 所有顶点在 B 外环外，或 A 所有顶点在 B 内环内
+ * 则 A、B 显然无交，A 对于 B 无效，在计算裁剪区域时可忽视 A
  ***************/
 bool checkPolygonWithPolygons(const Polygon &polygon, const Polygons &polygons) {
     // 检测单个顶点即可，无需检测所有顶点
+    // 在边无交的情况下，任意顶点在外环外，则所有顶点在外环外；任意顶点在内环内，则所有顶点在内环内
     if (polygon.size() == 0) { return false; }
     const Point &point = polygon[0];
     if (!checkPointInPolygon(point, polygons[0])) { return false; }
@@ -112,7 +113,7 @@ CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB) {
  * 调用时需保证多边形 A、B 合法
  ***************/
 int startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygonsC) {
-    // *** 初始化 ***
+    // *** 初始化 O(1) ***
     polygonsC.clear();
     if (polygonsA.size() == 0 || polygonsB.size() == 0)
         return 1;
@@ -289,7 +290,7 @@ int startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygon
     if (DEBUG_MODE) {
         qDebug() << QString("@Debug | End ---");
     }
-    // *** 返回裁剪结果 O(?) ***
+    // *** 返回裁剪结果 O(m+n) ***
     {
         CPoint *q = nullptr, *p = cpointListA;
         while (p) { q = p; p = p->next; delete q; }

@@ -250,7 +250,7 @@ void Window::insertPointA(Point p) {
         }
     } else {
         // * 绘制内环 *
-        // 验证顶点是否在基本矩形内
+        // 验证顶点是否在外环内
         if (!checkPointInPolygon(p, polygonsA[0])) {
             insertInfo(INFO_INSERT_POINT_FAIL_3.arg("A").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
@@ -322,7 +322,7 @@ void Window::insertPointB(Point p) {
         }
     } else {
         // * 绘制内环 *
-        // 验证顶点是否在基本矩形内
+        // 验证顶点是否在外环内
         if (!checkPointInPolygon(p, polygonsB[0])) {
             insertInfo(INFO_INSERT_POINT_FAIL_3.arg("B").arg(p.x).arg(p.y), ERROR_COLOR);
             return;
