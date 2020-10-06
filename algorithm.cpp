@@ -110,6 +110,7 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         qDebug() << "@Debug | ***** WA Begin ***** " << Qt::endl;
     }
     // *** 创建边列表 O(m+n) ***
+    // 若环完全在另一多边形外环外或内环内，此环可忽略
     vector<Line> lineListA, lineListB;
     // * A 外环入表 - 逆时针 *
     {
@@ -152,6 +153,38 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
                 CPoint *p = calculateCrossPoint(lineA, lineB);
                 if (p) { lineA.insertCPoint(p); lineB.insertCPoint(p->other); }
             }
+    // *** 无交点环特判 ***
+    {
+        // * A 中无交点环 *
+        int m = lineListA.size(), n = lineListB.size();
+        int k = 0, i = 0, j = 0;
+        while (j < m) {
+            while (j < m && !lineListA[j].isEndLine) j++;
+            if (j < m) {
+                bool noCrossPoint = true;
+                for (int x = i; x <= j; x++)
+                    if (lineListA[x].cpointList) { noCrossPoint = false; break; }
+                if (noCrossPoint)
+                    polygonsC.push_back(polygonsA[k]);
+            }
+            i = j = j + 1;
+            k++;
+        }
+        // * B 中无交点环 *
+        k = 0, i = 0, j = 0;
+        while (j < n) {
+            while (j < n && !lineListB[j].isEndLine) j++;
+            if (j < n) {
+                bool noCrossPoint = true;
+                for (int x = i; x <= j; x++)
+                    if (lineListB[x].cpointList) { noCrossPoint = false; break; }
+                if (noCrossPoint)
+                    polygonsC.push_back(polygonsB[k]);
+            }
+            i = j = j + 1;
+            k++;
+        }
+    }
     // *** 创建点列表 O(m+n) ***
     CPoint *cpointListA = nullptr, *cpointListB = nullptr;
     CPoint *cpointListHeadA = nullptr, *cpointListHeadB = nullptr;
@@ -203,9 +236,9 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         while ((p = p->next)) qDebug() << " (" << p->x << "," << p->y << "," << (p->other ? "交点" : "顶点") << (p->isEntry ? "入点" : "出点") << ")";
     }
     // *** 执行裁剪算法 O(m+n) ***
+    int currentPolygonIndexC = polygonsC.size();
     bool isInA = true;
     CPoint *h = cpointListA, *p = nullptr;
-    int currentPolygonIndexC = 0;
     // * 寻找首个交点 *
     while (h && !h->other) h = h->next;
     if (h) {
@@ -214,8 +247,9 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
         polygonsC.push_back(Polygon());
         while (p) {
             // * 记录当前顶点/交点 *
-            qDebug() << QString("@Debug | --- (%1, %2, %3)").arg(p->x).arg(p->y).arg(isInA ? "A" : "B");
-
+            if (DEBUG_MODE) {
+                qDebug() << QString("@Debug | Insert: (%1, %2, %3)").arg(p->x).arg(p->y).arg(isInA ? "A" : "B");
+            }
             polygonsC[currentPolygonIndexC].push_back(Point(round(p->x), round(p->y)));
             p->isVisited = true;
             // * 搜索下一顶点/交点 *
