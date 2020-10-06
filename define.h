@@ -75,14 +75,15 @@ struct CPoint {
     double x;       // X 横坐标
     double y;       // Y 纵坐标
     double t;       // t 参数 [0,1]
-    CPoint *other;  // 对应副本交点指针 nullptr: 非交点
+    CPoint *link;   // 顶点对应副本交点指针 nullptr: 非首位节点
+    CPoint *other;  // 交点对应副本交点指针 nullptr: 非交点
     CPoint *next;   // 列表下一元素指针
     bool isEntry;   // True: 入点  False: 出点
     bool isVisited; // True: 已追踪  False: 未追踪
     // *** 构造函数 ***
-    CPoint() : x(0), y(0), t(0), other(nullptr), next(nullptr), isEntry(false), isVisited(false) { }
-    CPoint(double x, double y, double t = 0, CPoint *o = nullptr, CPoint *n = nullptr, bool e = false, bool v = false)
-        : x(x), y(y), t(t), other(o), next(n), isEntry(e), isVisited(v) { }
+    CPoint() : x(0), y(0), t(0), link(nullptr), other(nullptr), next(nullptr), isEntry(false), isVisited(false) { }
+    CPoint(double x, double y, double t = 0, CPoint *l = nullptr, CPoint *o = nullptr, CPoint *n = nullptr, bool e = false, bool v = false)
+        : x(x), y(y), t(t), link(l), other(o), next(n), isEntry(e), isVisited(v) { }
 };
 
 

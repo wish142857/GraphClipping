@@ -82,11 +82,16 @@ CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB) {
     first->t = (b.x - a.x != 0 ? double(x - a.x) / double (b.x - a.x) : double(y - a.y) / double (b.y - a.y));
     second->t = (d.x - c.x != 0 ? double(x - c.x) / double (d.x - c.x) : double(y - c.y) / double (d.y - c.y));
     // * 判断入点/出点 *
-    // 注意：对于外环（逆时针）, 线段向量(x, y), 则(y, -x)恰为其外法向量
-    //      对于内环（顺时针）, 线段向量(x, y), 则(y, -x)恰为其内法向量
+    // 注意：对于外环（逆时针）, 线段向量(x, y), 则(-y, x)恰为其外法向量（界面坐标系下）
+    //      对于内环（顺时针）, 线段向量(x, y), 则(-y, x)恰为其内法向量（界面坐标系下）
     // 将主多边形线段与裁剪多边形线段外/内法向量做点积，若结果为负，交点为入点; 若结果为正，交点为出点
-    int xF = d.y - c.y, yF = c.x - d.x;
+    int xF = c.y - d.y, yF = d.x - c.x;
     first->isEntry = second->isEntry = ((b.x - a.x) * xF + (b.y - a.y) * yF < 0);
+
+    qDebug() << "@Debug | " << QString("(%1,%2)(%3,%4)->(%5,%6)(%7,%8)   (%9, %10)(%11,%12)")
+                .arg(a.x).arg(a.y).arg(b.x).arg(b.y).arg(c.x).arg(c.y).arg(d.x).arg(d.y).arg(b.x - a.x).arg(b.y - a.y).arg(xF).arg(yF)
+             << ((b.x - a.x) * xF + (b.y - a.y) * yF < 0);
+
     // *** 返回交点元素 ***
     return first;
 }
@@ -182,25 +187,36 @@ void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygo
     }
     // *** 执行裁剪算法 O(m+n) ***
     bool isInA = true;
-    CPoint *h = cpointListA, *p = h;
+    CPoint *h = cpointListA, *p = nullptr;
     int currentPolygonIndexC = 0;
-    polygonsC.push_back(Polygon());
-    while (p) {
-        // * 记录当前顶点/交点 *
-        polygonsC[currentPolygonIndexC].push_back(Point(round(p->x), round(p->y)));
-        p->isVisited = true;
-        // * 搜索下一顶点/交点 *
-        if (p->other && (p->isEntry != isInA)) { p = p->other; isInA = !isInA; }
-        p = p->next;
-        // * 判断是否回到起点 *
-        if (p == h) {
-            // 寻找下一未跟踪交点
-            while (h && (h->isVisited || !h->other)) h = h->next;
-            if (!h) break;
-            p = h;
-            // 建立新结果顶点表
-            currentPolygonIndexC++;
-            polygonsC.push_back(Polygon());
+    // * 寻找首个交点 *
+    while (h && !h->other) h = h->next;
+    if (h) {
+        p = h;
+        polygonsC.push_back(Polygon());
+        while (p) {
+            // * 记录当前顶点/交点 *
+            qDebug() << QString("@Debug | --- (%1, %2, %3)").arg(p->x).arg(p->y).arg(isInA ? "A" : "B");
+
+            polygonsC[currentPolygonIndexC].push_back(Point(round(p->x), round(p->y)));
+            p->isVisited = true;
+            // * 搜索下一顶点/交点 *
+            if (p->other && (p->isEntry != isInA)) { p = p->other; isInA = !isInA; }
+            else if (p->link) { p = p->link; }
+            p = p->next;
+            if (!p) {
+                // 回到起点
+            }
+            // * 判断是否回到起点 *
+            if (p == h || p->other == h) {
+                // 寻找下一未跟踪交点
+                while (h && (h->isVisited || !h->other)) h = h->next;
+                if (!h) break;
+                p = h;
+                // 建立新结果顶点表
+                currentPolygonIndexC++;
+                polygonsC.push_back(Polygon());
+            }
         }
     }
     // *** 返回裁剪结果 O(?) ***
