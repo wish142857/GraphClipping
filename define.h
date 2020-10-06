@@ -7,7 +7,7 @@
 /***************
  * [常量]
  ***************/
-const std::string WINDOW_TITLE = "『 iClip 』 -  Ver 0.1"; // 窗口标题
+const std::string WINDOW_TITLE = "『 iClip 』 -  Ver 1.0"; // 窗口标题
 const int WINDOW_WIDTH = 1200;              // 窗口宽度
 const int WINDOW_HEIGHT = 900;              // 窗口高度
 const int DRAWING_AREA_SIZE = 900;          // 绘图区域边长
@@ -17,6 +17,7 @@ const int DEFAULT_PEN_WIDTH = 3;            // 默认画笔宽度
 const int INFO_MAX_LINE_NUMBER = 100;       // 信息最大行数
 const QString SUCCESS_COLOR = "#228B22";    // 成功信息颜色
 const QString ERROR_COLOR = "#FF0000";      // 失败信息颜色
+const QString WARNING_COLOR = "#FFD700";    // 警告信息颜色
 
 const QString START_BUTTON_TEXT_1 = "开始绘图";
 const QString START_BUTTON_TEXT_2 = "正在绘图";
@@ -38,6 +39,7 @@ const QString INFO_CLOSE_POLYGON_FAIL_1 = "[%1] 闭合多边形失败: 至少需
 const QString INFO_CLOSE_POLYGON_FAIL_2 = "[%1] 闭合多边形失败: 将造成交叉线段\n[(%2,%3)(%4,%5)]×[(%6,%7)(%8,%9)]";
 const QString INFO_CLOSE_POLYGON_FAIL_3 = "[%1] 闭合多边形失败: 内环不能包含内环";
 
+const QString INFO_CLIP_SUCCEED = "[%1] 裁剪多边形完毕";
 
 /***************
  * [枚举]
@@ -108,7 +110,6 @@ struct Line {
         }
     }
 };
-
 
 typedef  std::vector<Point> Polygon;
 

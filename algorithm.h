@@ -14,7 +14,7 @@ bool checkPointInPolygon(const Point &point, const Polygon &polygon);
 // [算法] 判断两条线段是否规范相交
 bool checkLineWithLine(const Line &lineA, const Line &lineB);
 
-// [算法] 判断多边形（无内环）与多边形（带内环）是否有交
+// [算法] 判断多边形（无内环）对于多边形（带内环）是否有效
 bool checkPolygonWithPolygons(const Polygon &polygon, const Polygons &polygons);
 
 // [算法] 判断两条线段是否有交点
@@ -24,6 +24,6 @@ bool checkCrossPoint(const Line &lineA, const Line &lineB);
 CPoint* calculateCrossPoint(const Line &lineA, const Line &lineB);
 
 // [算法] 进行多边形（带内环）裁剪（Weiler-Atherton Algorithm）
-void startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygonsC);
+int startClipPolygon(Polygons &polygonsA, Polygons &polygonsB, Polygons &polygonsC);
 
 #endif // ALGORITHM_H
